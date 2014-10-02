@@ -301,11 +301,13 @@ sub facesToString {
     if ($face_flag eq "show"){
         $text .= "\n  <!-- FACETS --> \n";  
         for (my $facet = 0; $facet<@$facets; ++$facet) {
-            $text .= "  geometry.faces.push(new THREE.Face3(";
-            # TODO: non-simplicial faces!
-				$text .= join(", ", @{$facets->[$facet]});
-            $text.="));\n";
-
+	        for (my $triangle = 0; $triangle<@{$facets->[$facet]}-2; ++$triangle) {
+					my @vs = @{$facets->[$facet]}[0, $triangle+1, $triangle+2];
+					$text .= "  geometry.faces.push(new THREE.Face3(";
+					$text .= join(", ", @vs);
+					$text.="));\n";
+				}
+				$text.="\n";
         }
     }
 

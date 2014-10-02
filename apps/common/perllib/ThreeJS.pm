@@ -261,9 +261,7 @@ sub facesToString {
     my ($self, $trans)=@_;
     my $id = $self->id; # this is used to make all ids globally unique
 
-    my $facet_style=$self->source->FacetStyle;
     my $transp=$self->source->FacetTransparency || 1;
-    my $face_flag= $facet_style !~ $Visual::hidden_re ? "show" : "hide";
     my $facet_color=$self->source->FacetColor;
 
     my $text = "";
@@ -272,7 +270,7 @@ sub facesToString {
     my $facets = new Array<Array<Int>>($self->source->Facets);
 
 
-    if ($face_flag eq "show"){
+    if ($self->source->FacetStyle !~ $Visual::hidden_re){
 		$text .= "\n  <!-- FACET STYLE -->\n"; 
 		if (!is_code($facet_color)) {
 			my $hexstring = rgbToHex(@$facet_color);
@@ -294,29 +292,27 @@ sub facesToString {
 	material.side = THREE.DoubleSide;
 %
 		}
-	}
 
     
-    # Draw Facets
-    if ($face_flag eq "show"){
-        $text .= "\n  <!-- FACETS --> \n";  
-        for (my $facet = 0; $facet<@$facets; ++$facet) {
-	        for (my $triangle = 0; $triangle<@{$facets->[$facet]}-2; ++$triangle) {
-					my @vs = @{$facets->[$facet]}[0, $triangle+1, $triangle+2];
+    	# Draw Facets
+		$text .= "\n  <!-- FACETS --> \n";  
+		for (my $facet = 0; $facet<@$facets; ++$facet) {
+			for (my $triangle = 0; $triangle<@{$facets->[$facet]}-2; ++$triangle) {
+				my @vs = @{$facets->[$facet]}[0, $triangle+1, $triangle+2];
 					$text .= "  geometry.faces.push(new THREE.Face3(";
 					$text .= join(", ", @vs);
 					$text.="));\n";
 				}
 				$text.="\n";
-        }
-    }
+		}
+	}
 
-    return $text;
+	return $text;
 }
 
 sub toString {
-   my ($self, $transform)=@_;
-   return $self->header . $self->pointsToString . $self->facesToString($transform) . $self->trailer;
+	my ($self, $transform)=@_;
+	return $self->header . $self->pointsToString . $self->facesToString($transform) . $self->trailer;
 }
 
 

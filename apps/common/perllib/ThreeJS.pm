@@ -264,20 +264,24 @@ sub facesToString {
     my $transp=$self->source->FacetTransparency || 1;
     my $facet_color=$self->source->FacetColor;
 
+    my $edge_color=$self->source->EdgeColor;
+
+
     my $text = "";
 
 
-    my $facets = new Array<Array<Int>>($self->source->Facets);
+	### FACETS
+	my $facets = new Array<Array<Int>>($self->source->Facets);
 
 
-    if ($self->source->FacetStyle !~ $Visual::hidden_re){
+	if ($self->source->FacetStyle !~ $Visual::hidden_re){
 		$text .= "\n  <!-- FACET STYLE -->\n"; 
 		if (!is_code($facet_color)) {
 			my $hexstring = rgbToHex(@$facet_color);
 			my $material_string = "color: $hexstring, opacity: $transp,";
 			$text .= <<"%"
    var material = new THREE.MeshBasicMaterial({$material_string});
-	material.side = THREE.DoubleSide
+	material.side = THREE.DoubleSide;
 	
 %
     	} else {
@@ -306,6 +310,46 @@ sub facesToString {
 				$text.="\n";
 		}
 	}
+	
+
+
+
+	## EDGES	
+	my $line_thick = $self->source->EdgeThickness;
+	
+	if ($self->source->EdgeStyle !~ $Visual::hidden_re){
+		$text .= "\n  <!-- Edge STYLE -->\n"; 
+		if (!is_code($edge_color)) {
+			my $hexstring = rgbToHex(@$edge_color);
+			my $material_string = "color: $hexstring, linewidth: $line_thick, ";
+			$text .= <<"%"
+   var line_material = new THREE.LineBasicMaterial({$material_string});
+	
+%
+    	} else {
+		}
+
+    
+    	# draw edges
+		$text .= "\n  <!-- EDGES --> \n";  
+		for (my $facet = 0; $facet<@$facets; ++$facet) {
+			$text .= "	var line_geometry = new THREE.Geometry();\n";
+			foreach (@{$facets->[$facet]}) {
+				my $v = vertexCoords($self, $_);
+				$text .= <<"%" 
+	line_geometry.vertices.push(new THREE.Vector3($v));
+%
+			}
+			my $v = vertexCoords($self, $facets->[$facet]->[0]);
+			$text .= <<"%" 
+	line_geometry.vertices.push(new THREE.Vector3($v));
+	var line = new THREE.Line(line_geometry, line_material);
+	scene.add(line);
+	
+%
+		}
+	}
+	
 
 	return $text;
 }
@@ -315,6 +359,14 @@ sub toString {
 	return $self->header . $self->pointsToString . $self->facesToString($transform) . $self->trailer;
 }
 
+
+sub vertexCoords {
+	my ($self, $index) = @_;
+	my $p = $self->source->Vertices->[$index];
+	my $v = ref($p) ? Visual::print_coords($p) : "$p".(" 0"x($d-1));
+	$v =~ s/\s+/, /g;
+	return $v;
+}
 
 sub rgbToHex {    
 	my $red=shift;

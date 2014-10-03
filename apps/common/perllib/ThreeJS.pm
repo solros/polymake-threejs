@@ -292,6 +292,15 @@ sub newFace {
 %
 }
 
+sub newLine {
+	my ($self, $var) = @_;
+	my $mat = $var."_material";
+	return <<"%"
+	scene.add(new THREE.Line($var, $mat));
+	
+%
+}
+
 
 sub facesToString {
     my ($self, $trans, $var)=@_;
@@ -353,35 +362,30 @@ sub facesToString {
 	my $line_thick = $self->source->EdgeThickness || 1;
 	
 	if ($self->source->EdgeStyle !~ $Visual::hidden_re){
-		$text .= "\n  <!-- Edge STYLE -->\n"; 
-		if (!is_code($edge_color)) {
-			my $hexstring = Utils::rgbToHex(@$edge_color);
-			my $material_string = "color: $hexstring, linewidth: $line_thick, ";
-			$text .= <<"%"
-   var line_material = new THREE.LineBasicMaterial({$material_string});
-	
-%
-    	} else {
+		my $var = "line";
+		my $mat = "line_material";
+		$text .= "\n  <!-- edge style -->\n"; 
+		if (is_code($edge_color)) {
+			die "not yet supported";
 		}
-
+		my $hexstring = Utils::rgbToHex(@$edge_color);
+		my $material_string = "color: $hexstring, linewidth: $line_thick, ";
+		$text .= "	var $mat = new THREE.LineBasicMaterial({$material_string});\n";
+		
     
     	# draw edges
 		$text .= "\n  <!-- EDGES --> \n";  
+		my @coords = Utils::pointCoords($self);
+		print join "\n", @coords;
 		for (my $facet = 0; $facet<@$facets; ++$facet) {
-			$text .= "	var line_geometry = new THREE.Geometry();\n";
+			$text .= $self->newGeometry($var);
+			
 			foreach (@{$facets->[$facet]}) {
-				my $v = vertexCoords($self, $_);
-				$text .= <<"%" 
-	line_geometry.vertices.push(new THREE.Vector3($v));
-%
+				$text .= $self->newVertex($var, $coords[$_]);
 			}
-			my $v = vertexCoords($self, $facets->[$facet]->[0]);
-			$text .= <<"%" 
-	line_geometry.vertices.push(new THREE.Vector3($v));
-	var line = new THREE.Line(line_geometry, line_material);
-	scene.add(line);
-	
-%
+			# first vertex again
+			$text .= $self->newVertex($var, $coords[$facets->[$facet]->[0]]);
+			$text .= $self->newLine($var);
 		}
 	}
 	
@@ -394,14 +398,6 @@ sub toString {
 	return $self->pointsToString("points") . $self->facesToString($transform, "faces");
 }
 
-
-sub vertexCoords {
-	my ($self, $index) = @_;
-	my $p = $self->source->Vertices->[$index];
-	my $v = ref($p) ? Visual::print_coords($p) : "$p".(" 0"x($d-1));
-	$v =~ s/\s+/, /g;
-	return $v;
-}
 
 
 package ThreeJS::Utils;

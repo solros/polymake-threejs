@@ -134,11 +134,6 @@ sub header {
 sub trailer {
 	return <<"%"
 
-	geometry.computeFaceNormals();
-	geometry.computeVertexNormals();
-	var object = new THREE.Mesh(geometry, material);
-	scene.add(object);
-
 %
 }
 
@@ -298,7 +293,7 @@ sub facesToString {
 		}
 
     
-    	# Draw Facets
+    	# draw facets
 		$text .= "\n  <!-- FACETS --> \n";  
 		for (my $facet = 0; $facet<@$facets; ++$facet) {
 			for (my $triangle = 0; $triangle<@{$facets->[$facet]}-2; ++$triangle) {
@@ -309,6 +304,12 @@ sub facesToString {
 				}
 				$text.="\n";
 		}
+		$text .= <<"%"
+	geometry.computeFaceNormals();
+	geometry.computeVertexNormals();
+	var object = new THREE.Mesh(geometry, material);
+	scene.add(object);
+%
 	}
 	
 

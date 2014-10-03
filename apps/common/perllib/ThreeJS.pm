@@ -131,8 +131,9 @@ sub newVertex {
 sub newPoint {
 	my ($self, $var, $coords, $size) = @_;
 	my $radius = $size/50;
+	my $mat = $var."_material";
 	return <<"%"
-	var sphere = new THREE.Mesh(new THREE.SphereGeometry($radius), point_material);
+	var sphere = new THREE.Mesh(new THREE.SphereGeometry($radius), $mat);
 	sphere.position.set($coords);
 	scene.add(sphere);
 %
@@ -150,28 +151,26 @@ sub newMaterial {
 sub pointsToString {
     my ($self, $var)=@_;
 
-    my $d = is_object($self->source->Vertices) ? $self->source->Vertices->cols : 3;
-
-    my $labels=$self->source->VertexLabels;
-
+    my $labels=$self->source->VertexLabels; # TODO: support labels
     
     my $text = "";
 
-    my @coords = Utils::pointCoords($self);
-
-
 	if ($self->source->VertexStyle !~ $Visual::hidden_re){
+		my @coords = Utils::pointCoords($self);
+
 		$text .= $self->newGeometry($var);
 		$text .= "\n	<!-- point style -->";
+
 		my $vertex_color=$self->source->VertexColor;
-		my $thickness = $self->source->VertexThickness;
+		my $thickness = $self->source->VertexThickness || 1;
+
 		if (is_code($vertex_color) || is_code($thickness)){
 			die "not yet supported";
 		}
 
 		my $hexstring = Utils::rgbToHex(@$vertex_color);
 		my $material_string = "color: $hexstring, size: $thickness,";
-		$text .= "\n	var point_material = new THREE.MeshBasicMaterial({$material_string});\n\n";
+		$text .= "\n	var points_material = new THREE.MeshBasicMaterial({$material_string});\n\n";
 		
 		$text .= "	<!-- POINTS -->\n";
 	
@@ -270,17 +269,18 @@ use Polymake::Struct (
 
 
 sub header {
-	my $self = shift;
-	return $self->newGeometry("faces");
+	my ($self, $var) = @_;
+	return $self->newGeometry($var);
 }
 
 
 sub trailer {
 	my ($self, $var) = @_;
+	my $mat = $var."_material";
 	return <<"%"
 	$var.computeFaceNormals();
 	$var.computeVertexNormals();
-	var object = new THREE.Mesh($var, material);
+	var object = new THREE.Mesh($var, $mat);
 	scene.add(object);
 %
 }
@@ -294,30 +294,30 @@ sub newFace {
 
 
 sub facesToString {
-    my ($self, $trans)=@_;
+    my ($self, $trans, $var)=@_;
 
     my $transp=$self->source->FacetTransparency || 1;
     my $facet_color=$self->source->FacetColor;
     my $edge_color=$self->source->EdgeColor;
 
-
     my $text = "";
-
 
 	### FACETS
 	my $facets = new Array<Array<Int>>($self->source->Facets);
-
+	
 
 	if ($self->source->FacetStyle !~ $Visual::hidden_re){
-		$text .= $self->header;
-		$text .= $self->verticesToString("faces");
+		$text .= $self->header($var);
+		$text .= $self->verticesToString($var);
 		$text .= "\n  <!-- facet style -->\n"; 
+		my $mat = $var."_material";
+
 		if (!is_code($facet_color)) {
 			my $hexstring = Utils::rgbToHex(@$facet_color);
 			my $material_string = "color: $hexstring, opacity: $transp,";
 			$text .= <<"%"
-   var material = new THREE.MeshBasicMaterial({$material_string});
-	material.side = THREE.DoubleSide;
+   var $mat = new THREE.MeshBasicMaterial({$material_string});
+	$mat.side = THREE.DoubleSide;
 	
 %
     	} else {
@@ -328,8 +328,8 @@ sub facesToString {
 			}
 			$text .= <<"%"	
 	];
-	var material = new THREE.MeshFaceMaterial(materials);
-	material.side = THREE.DoubleSide;
+	var $mat = new THREE.MeshFaceMaterial(materials);
+	$mat.side = THREE.DoubleSide;
 %
 		}
 
@@ -339,11 +339,11 @@ sub facesToString {
 		for (my $facet = 0; $facet<@$facets; ++$facet) {
 			for (my $triangle = 0; $triangle<@{$facets->[$facet]}-2; ++$triangle) {
 				my @vs = @{$facets->[$facet]}[0, $triangle+1, $triangle+2];
-					$text .= $self->newFace("faces", join(", ", @vs));
+					$text .= $self->newFace($var, join(", ", @vs));
 				}
 				$text.="\n";
 		}
-		$text .= $self->trailer("faces");
+		$text .= $self->trailer($var);
 	}
 	
 
@@ -391,7 +391,7 @@ sub facesToString {
 
 sub toString {
 	my ($self, $transform)=@_;
-	return $self->pointsToString("points") . $self->facesToString($transform);
+	return $self->pointsToString("points") . $self->facesToString($transform, "faces");
 }
 
 
@@ -417,6 +417,7 @@ sub rgbToHex {
 sub pointCoords {
 	my ($self) = @_;
 	my @coords = ();
+   my $d = is_object($self->source->Vertices) ? $self->source->Vertices->cols : 3;
 	foreach (@{$self->source->Vertices}) {
 		my $point=ref($_) ? Visual::print_coords($_) : "$_".(" 0"x($d-1));
 		$point =~ s/\s+/, /g;

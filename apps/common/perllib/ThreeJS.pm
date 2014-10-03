@@ -18,8 +18,8 @@
 # This file only provides the basic functionality.  Visualization of polymake's various object types
 # triggers code implemented in apps/*/rules/threejs.rules.
 
-package ThreeJS::File;
 
+package ThreeJS::File;
 use Polymake::Struct (
    [ new => '$' ],
    [ '$title' => '#1' ],
@@ -44,7 +44,7 @@ sub header {
    my ($self,$trans) = @_;
    my $who=$ENV{USER};
    my $when=localtime();
-   my $title=$self->title // "unnamed";
+   my $title=$self->title || "unnamed";
 
    my $xaxis = $trans->col(1);
    my $yaxis = $trans->col(2);
@@ -114,77 +114,94 @@ use Polymake::Struct (
    [ '$name' => '#1 ->Name' ],
 );
 
-# name without whitespace and such
-# notice that "-", "{", and "}" occur in names of simplices of a TRIANGULATION
-sub id {
-   my ($self)=@_;
-   my $id=$self->name;
-   $id =~ s/[\s\{\}-]+//g;
-   return $id;
-}
-
-sub header {
+sub newGeometry {
+	my ($self, $var) = @_;
 	return <<"%"
-
-	var geometry = new THREE.Geometry();
-	
+	var $var = new THREE.Geometry();
 %
 }
 
-sub trailer {
+sub newVertex {
+	my ($self, $var, $coords) = @_;
 	return <<"%"
-
+	$var.vertices.push(new THREE.Vector3($coords));
 %
 }
+
+sub newPoint {
+	my ($self, $var, $coords, $size) = @_;
+	my $radius = $size/50;
+	return <<"%"
+	var sphere = new THREE.Mesh(new THREE.SphereGeometry($radius), point_material);
+	sphere.position.set($coords);
+	scene.add(sphere);
+%
+}
+
+sub newMaterial {
+	my ($self, $var, $coords) = @_;
+	my $mat = $var."_material";
+	return <<"%"
+	var $mat = new THREE.ParticlesBasicMaterial();
+%
+}
+
 
 sub pointsToString {
-    my ($self)=@_;
-    my $id = $self->id; # this is used to make all ids globally unique
+    my ($self, $var)=@_;
 
     my $d = is_object($self->source->Vertices) ? $self->source->Vertices->cols : 3;
-    my $style=$self->source->VertexStyle;
-    my $point_flag= is_code($style) || $style !~ $Visual::hidden_re ? "show" : "hide";
-    my $color=$self->source->VertexColor;
-    my $color_flag= is_code($color) ? "show" : "hide";
-    my $k=0;
+
     my $labels=$self->source->VertexLabels;
-#---
-    my $thickness=$self->source->VertexThickness;
-    my $thickness_flag= is_code($thickness) ? "show" : "hide";
-    my @vertexcolor = ($color_flag eq "show") ? split(/ /, $color->(0)->toFloat) :  split(/ /, $color->toFloat);
-    my $vcstring = join ",", @vertexcolor;
+
     
     my $text = "";
 
+    my @coords = Utils::pointCoords($self);
 
-    # Point coloring
-    if ($point_flag eq "show"){ 
-        if ($color_flag eq "show"){
-            my $i = 0;
-            foreach my $e(@{$self->source->Vertices}){
-                my @own_color_array = split(/ /, $color->($i)->toFloat);
-                my $ocstring = join ",", @own_color_array;
-                ++$i;
-            }}
 
-    }
+	if ($self->source->VertexStyle !~ $Visual::hidden_re){
+		$text .= $self->newGeometry($var);
+		$text .= "\n	<!-- point style -->";
+		my $vertex_color=$self->source->VertexColor;
+		my $thickness = $self->source->VertexThickness;
+		if (is_code($vertex_color) || is_code($thickness)){
+			die "not yet supported";
+		}
 
-    # Point definitions
-    $text .= "\n  <!-- DEF POINTS -->\n";
-    foreach (@{$self->source->Vertices}) {
-        my $point=ref($_) ? Visual::print_coords($_) : "$_".(" 0"x($d-1));
-        $point =~ s/\s+/, /g;
-        $text .= "  geometry.vertices.push(new THREE.Vector3($point));\n";
-        ++$k;
-    }
-    $text .= "\n";
-
-    return $text;
+		my $hexstring = Utils::rgbToHex(@$vertex_color);
+		my $material_string = "color: $hexstring, size: $thickness,";
+		$text .= "\n	var point_material = new THREE.MeshBasicMaterial({$material_string});\n\n";
+		
+		$text .= "	<!-- POINTS -->\n";
+	
+		foreach (@coords){
+			$text .= $self->newPoint($var, $_, $thickness);
+		}
+		
+		$text .= "\n";
+	}
+	
+	return $text;
 }
+
+sub verticesToString {
+	my ($self, $var) = @_; 
+
+	my $text = "";
+	
+    my @coords = Utils::pointCoords($self);
+    $text .= "\n  <!-- VERTICES -->\n";
+    foreach (@coords) {
+        $text .= $self->newVertex($var, $_);
+   }
+	return $text;
+}
+
 
 sub toString {
     my ($self, $trans)=@_;
-    $self->header . $self->pointsToString . $self->trailer;
+    $self->pointsToString("points");
 }
 
 ##############################################################################################
@@ -198,7 +215,6 @@ use Polymake::Struct (
 
 sub linesToString {
     my ($self)=@_;
-    my $id=$self->id;
 
     my $arrows=$self->source->ArrowStyle;
     my $style=$self->source->EdgeStyle;
@@ -239,7 +255,7 @@ sub linesToString {
 
 sub toString {
     my ($self, $trans)=@_;
-    $self->header . $self->pointsToString . $self->linesToString . $self->trailer;
+    $self->header("lines") . $self->pointsToString("points") . $self->linesToString . $self->trailer;
 }
 
 
@@ -252,13 +268,36 @@ use Polymake::Struct (
    [ '@ISA' => 'PointSet' ],
 );
 
+
+sub header {
+	my $self = shift;
+	return $self->newGeometry("faces");
+}
+
+
+sub trailer {
+	my ($self, $var) = @_;
+	return <<"%"
+	$var.computeFaceNormals();
+	$var.computeVertexNormals();
+	var object = new THREE.Mesh($var, material);
+	scene.add(object);
+%
+}
+
+sub newFace {
+	my ($self, $var, $indices) = @_;
+	return <<"%"
+	$var.faces.push(new THREE.Face3($indices));
+%
+}
+
+
 sub facesToString {
     my ($self, $trans)=@_;
-    my $id = $self->id; # this is used to make all ids globally unique
 
     my $transp=$self->source->FacetTransparency || 1;
     my $facet_color=$self->source->FacetColor;
-
     my $edge_color=$self->source->EdgeColor;
 
 
@@ -270,9 +309,11 @@ sub facesToString {
 
 
 	if ($self->source->FacetStyle !~ $Visual::hidden_re){
-		$text .= "\n  <!-- FACET STYLE -->\n"; 
+		$text .= $self->header;
+		$text .= $self->verticesToString("faces");
+		$text .= "\n  <!-- facet style -->\n"; 
 		if (!is_code($facet_color)) {
-			my $hexstring = rgbToHex(@$facet_color);
+			my $hexstring = Utils::rgbToHex(@$facet_color);
 			my $material_string = "color: $hexstring, opacity: $transp,";
 			$text .= <<"%"
    var material = new THREE.MeshBasicMaterial({$material_string});
@@ -282,7 +323,7 @@ sub facesToString {
     	} else {
 			$text .= "\n    var materials = [";
 			foreach (my $i = 0; $i< @$facets; ++$i) {
-            my $hexstring = rgbToHex(@{$facet_color->($i)});
+            my $hexstring = Utils::rgbToHex(@{$facet_color->($i)});
             $text .= "\n		new THREE.MeshBasicMaterial({color:$hexstring}),"; 
 			}
 			$text .= <<"%"	
@@ -298,18 +339,11 @@ sub facesToString {
 		for (my $facet = 0; $facet<@$facets; ++$facet) {
 			for (my $triangle = 0; $triangle<@{$facets->[$facet]}-2; ++$triangle) {
 				my @vs = @{$facets->[$facet]}[0, $triangle+1, $triangle+2];
-					$text .= "  geometry.faces.push(new THREE.Face3(";
-					$text .= join(", ", @vs);
-					$text.="));\n";
+					$text .= $self->newFace("faces", join(", ", @vs));
 				}
 				$text.="\n";
 		}
-		$text .= <<"%"
-	geometry.computeFaceNormals();
-	geometry.computeVertexNormals();
-	var object = new THREE.Mesh(geometry, material);
-	scene.add(object);
-%
+		$text .= $self->trailer("faces");
 	}
 	
 
@@ -321,7 +355,7 @@ sub facesToString {
 	if ($self->source->EdgeStyle !~ $Visual::hidden_re){
 		$text .= "\n  <!-- Edge STYLE -->\n"; 
 		if (!is_code($edge_color)) {
-			my $hexstring = rgbToHex(@$edge_color);
+			my $hexstring = Utils::rgbToHex(@$edge_color);
 			my $material_string = "color: $hexstring, linewidth: $line_thick, ";
 			$text .= <<"%"
    var line_material = new THREE.LineBasicMaterial({$material_string});
@@ -357,7 +391,7 @@ sub facesToString {
 
 sub toString {
 	my ($self, $transform)=@_;
-	return $self->header . $self->pointsToString . $self->facesToString($transform) . $self->trailer;
+	return $self->pointsToString("points") . $self->facesToString($transform);
 }
 
 
@@ -369,6 +403,9 @@ sub vertexCoords {
 	return $v;
 }
 
+
+package ThreeJS::Utils;
+
 sub rgbToHex {    
 	my $red=shift;
 	my $green=shift;
@@ -376,6 +413,18 @@ sub rgbToHex {
 	my $hex = sprintf ("0x%2.2X%2.2X%2.2X", $red*255, $green*255, $blue*255);
 	return ($hex);
 }
+
+sub pointCoords {
+	my ($self) = @_;
+	my @coords = ();
+	foreach (@{$self->source->Vertices}) {
+		my $point=ref($_) ? Visual::print_coords($_) : "$_".(" 0"x($d-1));
+		$point =~ s/\s+/, /g;
+		push @coords, $point;
+	}
+	return @coords;
+}
+
 
 1
 

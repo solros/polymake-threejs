@@ -15,17 +15,13 @@
 
 
 package ThreeJS;
-
-CREDIT threejs
-	bla
   
 # webbrowser
 custom $webbrowser;
 
-# CONFIGURE_OPT {
-#    find_program($pdflatex, qw( pdflatex ), { prompt => "the PDFLaTeX executable" });
-#    find_program($pdfviewer, qw( evince acroread xpdf ), { prompt => "executable of some PDF viewer" });
-# }
+CONFIGURE_OPT {
+   find_program($webbrowser, qw( chrome safari firefox ), { prompt => "the web browser" });
+}
 
 
 package ThreeJS::default;
@@ -163,8 +159,8 @@ package application;
 #  or "| program" for a pipe.  Real file names are automatically completed with the ''.html'' suffix if needed.
 #
 #  An automatically generated file name is displayed in the verbose mode.
-
-user_function threejs(Visual::Object+, { File => undef }) {
+# @option Bool NoHTML do not produce html skeleton in the file
+user_function threejs(Visual::Object+, { File => undef, NoHTML => 0 }) {
    visualize_explicit(@_, "ThreeJS");
 }
 

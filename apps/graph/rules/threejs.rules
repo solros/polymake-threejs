@@ -16,8 +16,6 @@
 REQUIRE
    common::threejs.rules
 
-CREDIT threejs
-
 
 package ThreeJS::Viewer;
 

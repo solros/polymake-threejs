@@ -316,7 +316,7 @@ sub facesToString {
 
 
 	## EDGES	
-	my $line_thick = $self->source->EdgeThickness;
+	my $line_thick = $self->source->EdgeThickness || 1;
 	
 	if ($self->source->EdgeStyle !~ $Visual::hidden_re){
 		$text .= "\n  <!-- Edge STYLE -->\n"; 

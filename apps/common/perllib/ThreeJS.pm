@@ -140,10 +140,64 @@ sub newPoint {
 }
 
 sub newMaterial {
-	my ($self, $var, $coords) = @_;
-	my $mat = $var."_material";
+	my ($self, $var, $type) = @_;
+	my $matvar = $var."_material";
+	my $material;
+	my $material_string = "";
+	
+	if ($type eq "Vertex") {
+		$material = "MeshBasicMaterial";
+
+		my $color = $self->source->VertexColor;
+		my $col_string = Utils::rgbToHex(@$color);
+		$material_string .= "color: $col_string, ";
+		
+	} elsif ($type eq "Point") {
+		$material = "MeshBasicMaterial";
+		
+		my $color = $self->source->PointColor;
+		my $col_string = Utils::rgbToHex(@$color);
+		$material_string .= "color: $col_string, ";
+
+	} elsif ($type eq "Facet") {
+		my $transp = $self->source->FacetTransparency || 1;
+		$material_string .= "opacity: $transp, ";
+
+		my $color = $self->source->FacetColor;
+		if (!is_code($color)) {
+			$material = "MeshBasicMaterial";
+			
+			my $col_string = Utils::rgbToHex(@$color);
+			$material_string .= "color: $col_string, ";
+		} else {
+			$material = "MeshFaceMaterial";
+			$text .= "\n    var materials = [";
+			foreach (my $i = 0; $i< @{$self->source->Facets}; ++$i) {
+            my $hexstring = Utils::rgbToHex(@{$color->($i)});
+            $text .= "\n		new THREE.MeshBasicMaterial({color:$hexstring, $material_string}),"; 
+			}
+			$text .= "	];";
+		
+			$material_string = "materials";
+		}
+		
+	} elsif ($type eq "Edge") {
+		$material = "LineBasicMaterial";
+		
+		my $thick = $self->source->EdgeThickness || 1;
+		$material_string .= "linewidth: $thick, ";
+		
+		my $color = $self->source->EdgeColor;
+		my $col_string = Utils::rgbToHex(@$color);
+		$material_string .= "color: $col_string, ";
+	}
+	
 	return <<"%"
-	var $mat = new THREE.ParticlesBasicMaterial();
+	
+	<!-- $type style -->
+	var $matvar = new THREE.$material({$material_string});
+	$matvar.side = THREE.DoubleSide;
+	
 %
 }
 
@@ -158,20 +212,11 @@ sub pointsToString {
 	if ($self->source->VertexStyle !~ $Visual::hidden_re){
 		my @coords = Utils::pointCoords($self);
 
-		$text .= $self->newGeometry($var);
-		$text .= "\n	<!-- point style -->";
-
-		my $vertex_color=$self->source->VertexColor;
 		my $thickness = $self->source->VertexThickness || 1;
-
-		if (is_code($vertex_color) || is_code($thickness)){
-			die "not yet supported";
-		}
-
-		my $hexstring = Utils::rgbToHex(@$vertex_color);
-		my $material_string = "color: $hexstring, size: $thickness,";
-		$text .= "\n	var points_material = new THREE.MeshBasicMaterial({$material_string});\n\n";
 		
+
+		$text .= $self->newMaterial("points", "Vertex");
+
 		$text .= "	<!-- POINTS -->\n";
 	
 		foreach (@coords){
@@ -305,42 +350,16 @@ sub newLine {
 sub facesToString {
     my ($self, $trans, $var)=@_;
 
-    my $transp=$self->source->FacetTransparency || 1;
-    my $facet_color=$self->source->FacetColor;
-    my $edge_color=$self->source->EdgeColor;
-
     my $text = "";
 
 	### FACETS
-	my $facets = new Array<Array<Int>>($self->source->Facets);
-	
+	my $facets = new Array<Array<Int>>($self->source->Facets);	
 
 	if ($self->source->FacetStyle !~ $Visual::hidden_re){
 		$text .= $self->header($var);
 		$text .= $self->verticesToString($var);
-		$text .= "\n  <!-- facet style -->\n"; 
-		my $mat = $var."_material";
 
-		if (!is_code($facet_color)) {
-			my $hexstring = Utils::rgbToHex(@$facet_color);
-			my $material_string = "color: $hexstring, opacity: $transp,";
-			$text .= <<"%"
-   var $mat = new THREE.MeshBasicMaterial({$material_string});
-	$mat.side = THREE.DoubleSide;
-	
-%
-    	} else {
-			$text .= "\n    var materials = [";
-			foreach (my $i = 0; $i< @$facets; ++$i) {
-            my $hexstring = Utils::rgbToHex(@{$facet_color->($i)});
-            $text .= "\n		new THREE.MeshBasicMaterial({color:$hexstring}),"; 
-			}
-			$text .= <<"%"	
-	];
-	var $mat = new THREE.MeshFaceMaterial(materials);
-	$mat.side = THREE.DoubleSide;
-%
-		}
+		$text .= $self->newMaterial($var, "Facet");
 
     
     	# draw facets
@@ -358,25 +377,16 @@ sub facesToString {
 
 
 
-	## EDGES	
-	my $line_thick = $self->source->EdgeThickness || 1;
-	
+	## EDGES
 	if ($self->source->EdgeStyle !~ $Visual::hidden_re){
-		my $var = "line";
-		my $mat = "line_material";
-		$text .= "\n  <!-- edge style -->\n"; 
-		if (is_code($edge_color)) {
-			die "not yet supported";
-		}
-		my $hexstring = Utils::rgbToHex(@$edge_color);
-		my $material_string = "color: $hexstring, linewidth: $line_thick, ";
-		$text .= "	var $mat = new THREE.LineBasicMaterial({$material_string});\n";
+		$var = "line";
 		
+		$text .= $self->newMaterial($var, "Edge");		
     
     	# draw edges
 		$text .= "\n  <!-- EDGES --> \n";  
 		my @coords = Utils::pointCoords($self);
-		print join "\n", @coords;
+
 		for (my $facet = 0; $facet<@$facets; ++$facet) {
 			$text .= $self->newGeometry($var);
 			

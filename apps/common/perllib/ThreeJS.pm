@@ -82,6 +82,8 @@ $title
 
 sub trailer {
     return <<"%";
+
+
 	var render = function () {
 		requestAnimationFrame(render);
 
@@ -138,6 +140,16 @@ sub newPoint {
 	scene.add(sphere);
 %
 }
+
+sub newLine {
+	my ($self, $var) = @_;
+	my $mat = $var."_material";
+	return <<"%"
+	scene.add(new THREE.Line($var, $mat));
+	
+%
+}
+
 
 sub newMaterial {
 	my ($self, $var, $type) = @_;
@@ -217,7 +229,7 @@ sub pointsToString {
 
 		$text .= $self->newMaterial("points", "Vertex");
 
-		$text .= "	<!-- POINTS -->\n";
+		$text .= "\n	<!-- POINTS -->\n";
 	
 		foreach (@coords){
 			$text .= $self->newPoint($var, $_, $thickness);
@@ -257,49 +269,46 @@ use Polymake::Struct (
    [ '@ISA' => 'PointSet' ],
 );
 
-sub linesToString {
-    my ($self)=@_;
+sub newEdge {
+	my ($self, $var, $a, $b) = @_;
+	
+	return $self->newGeometry($var) . $self->newVertex($var, $a) . $self->newVertex($var, $b) . $self->newLine($var);
+}
 
-    my $arrows=$self->source->ArrowStyle;
-    my $style=$self->source->EdgeStyle;
-    my $line_flag= is_code($style) || $style !~ $Visual::hidden_re ? "show" : "hide";
-    my $thickness=$self->source->EdgeThickness;
-    my $thickness_flag= is_code($thickness) ? "show" : "hide";
-    my $color=$self->source->EdgeColor;
-    my $color_flag= is_code($color) ? "show" : "hide";
-    my @linecolor = ($color_flag eq "show") ? split(/ /, $color->($self->source->all_edges)) : split(/ /, $color->toFloat);
-    my $lcstring = join ",", @linecolor;
-    my $lsstring = "color=linecolor_$id, thick";
-    if($arrows==1) {
-        $lsstring .= ", arrows = -stealth, shorten >= 1pt";
-    } elsif($arrows==-1) {
-        $lsstring .= ", arrows = stealth-, shorten >= 1pt";
-    }
+
+sub linesToString {
+    my ($self, $var)=@_;
+
+	# TODO: arrows
+#    my $arrows=$self->source->ArrowStyle;
+
+ #   if($arrows==1) {
+ #       $lsstring .= ", arrows = -stealth, shorten >= 1pt";
+ #   } elsif($arrows==-1) {
+ #       $lsstring .= ", arrows = stealth-, shorten >= 1pt";
+ #   }
 
     my $text ="";
 
-    if ($line_flag eq "show"){
+	if ($self->source->EdgeStyle !~ $Visual::hidden_re) {
+		$text .= $self->newMaterial($var, "Edge");
 
-            if ($color_flag eq "show"){
-                for (my $e=$self->source->all_edges; $e; ++$e) {
-                    my $a=$e->[0]; my $b=$e->[1];
-                    my $own_color =  $color->($e)->toFloat;
-                    my @own_color_array = split(/ /, $color->($e)->toFloat);
-                    my $ocstring = join ",", @own_color_array;
-                }
-        }
+		$text .= "\n	<!-- EDGES -->\n";
 
+		my @coords = Utils::pointCoords($self);
 
-        my $labels=$self->source->EdgeLabels;
+		for (my $e=$self->source->all_edges; $e; ++$e) {
+			$text .= $self->newEdge($var, $coords[$e->[0]], $coords[$e->[1]]);
+		}
+	}
+	
 
-    }
-
-    return $text;
+	return $text;
 }
 
 sub toString {
     my ($self, $trans)=@_;
-    $self->header("lines") . $self->pointsToString("points") . $self->linesToString . $self->trailer;
+   $self->pointsToString("points") . $self->linesToString("line");
 }
 
 
@@ -327,6 +336,7 @@ sub trailer {
 	$var.computeVertexNormals();
 	var object = new THREE.Mesh($var, $mat);
 	scene.add(object);
+
 %
 }
 
@@ -334,15 +344,6 @@ sub newFace {
 	my ($self, $var, $indices) = @_;
 	return <<"%"
 	$var.faces.push(new THREE.Face3($indices));
-%
-}
-
-sub newLine {
-	my ($self, $var) = @_;
-	my $mat = $var."_material";
-	return <<"%"
-	scene.add(new THREE.Line($var, $mat));
-	
 %
 }
 

@@ -156,7 +156,12 @@ sub newMaterial {
 	my ($self, $var, $type) = @_;
 	my $matvar = $var."_material";
 	my $material;
+	my $material_bracket1 = "({";
+	my $material_bracket2 = "})";
 	my $material_string = "";
+	
+
+	my $text = "";
 	
 	if ($type eq "Vertex") {
 		$material = "MeshBasicMaterial";
@@ -187,13 +192,15 @@ sub newMaterial {
 			$text .= "\n    var materials = [";
 			foreach (my $i = 0; $i< @{$self->source->Facets}; ++$i) {
             my $hexstring = Utils::rgbToHex(@{$color->($i)});
-            $text .= "\n		new THREE.MeshBasicMaterial({color:$hexstring, $material_string}),"; 
+            $text .= "\n		new THREE.MeshBasicMaterial({color: $hexstring, $material_string}),"; 
 			}
-			$text .= "	];";
+			$text .= "\n	];\n";
 		
 			$material_string = "materials";
+			$material_bracket1 = "(";
+			$material_bracket2 = ")";
 		}
-		
+
 	} elsif ($type eq "Edge") {
 		$material = "LineBasicMaterial";
 		
@@ -208,7 +215,8 @@ sub newMaterial {
 	return <<"%"
 	
 	<!-- $type style -->
-	var $matvar = new THREE.$material({$material_string});
+	$text
+	var $matvar = new THREE.$material $material_bracket1 $material_string $material_bracket2;
 	$matvar.side = THREE.DoubleSide;
 	
 %
@@ -336,9 +344,19 @@ use Polymake::Struct (
 
 
 sub newFace {
-	my ($self, $var, $indices) = @_;
+	my ($self, $var, $indices, $facet, $facet_color) = @_;
+#	my $color;
+	my $m_index = 0;
+	if (is_code($facet_color)) {
+#		print $facet."\t";
+#		$color = join ", ", @{$facet_color->($facet)};
+#		print $color."\n";
+		$m_index = $facet;
+	} else {
+#		$color = Utils::rgbToHex(@{$facet_color});
+	}
 	return <<"%"
-	$var.faces.push(new THREE.Face3($indices));
+	$var.faces.push(new THREE.Face3($indices, undefined, undefined, $m_index));
 %
 }
 
@@ -360,10 +378,11 @@ sub facesToString {
     
     	# draw facets
 		$text .= "\n  <!-- FACETS --> \n";  
+		my $facet_color = $self->source->FacetColor;
 		for (my $facet = 0; $facet<@$facets; ++$facet) {
 			for (my $triangle = 0; $triangle<@{$facets->[$facet]}-2; ++$triangle) {
 				my @vs = @{$facets->[$facet]}[0, $triangle+1, $triangle+2];
-					$text .= $self->newFace($var, join(", ", @vs));
+					$text .= $self->newFace($var, join(", ", @vs), $facet, $facet_color);
 				}
 				$text.="\n";
 		}

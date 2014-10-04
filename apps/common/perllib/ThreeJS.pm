@@ -41,7 +41,7 @@ sub append {
 }
 
 sub header {
-   my ($self,$trans) = @_;
+   my ($self, $trans) = @_;
    my $who=$ENV{USER};
    my $when=localtime();
    my $title=$self->title || "unnamed";
@@ -65,6 +65,7 @@ $title
 <body>
 <script src="js/three.min.js"></script>
 <script src="js/controls/TrackballControls.js"></script>
+<script src="js/Detector.js"></script>
 
 <script>
 	var scene = new THREE.Scene();
@@ -72,7 +73,7 @@ $title
 	
 	var controls = new THREE.TrackballControls( camera );
 				
-	var renderer = new THREE.CanvasRenderer();
+	var renderer = Detector.webgl? new THREE.WebGLRenderer(): new THREE.CanvasRenderer();
 	renderer.setSize(window.innerWidth, window.innerHeight);
 	document.body.appendChild(renderer.domElement);
 
@@ -137,7 +138,7 @@ sub newPoint {
 	return <<"%"
 	var sphere = new THREE.Mesh(new THREE.SphereGeometry($radius), $mat);
 	sphere.position.set($coords);
-	scene.add(sphere);
+	obj.add(sphere);
 %
 }
 
@@ -145,7 +146,7 @@ sub newLine {
 	my ($self, $var) = @_;
 	my $mat = $var."_material";
 	return <<"%"
-	scene.add(new THREE.Line($var, $mat));
+	obj.add(new THREE.Line($var, $mat));
 	
 %
 }
@@ -172,8 +173,8 @@ sub newMaterial {
 		$material_string .= "color: $col_string, ";
 
 	} elsif ($type eq "Facet") {
-		my $transp = $self->source->FacetTransparency || 1;
-		$material_string .= "opacity: $transp, ";
+		my $transp = 1 - $self->source->FacetTransparency || 1;
+		$material_string .= "transparent: true, opacity: $transp, ";
 
 		my $color = $self->source->FacetColor;
 		if (!is_code($color)) {
@@ -210,6 +211,18 @@ sub newMaterial {
 	var $matvar = new THREE.$material({$material_string});
 	$matvar.side = THREE.DoubleSide;
 	
+%
+}
+
+sub header {
+	return <<"%"
+	var obj = new THREE.Object3D();	
+%
+}
+
+sub trailer {
+	return <<"%"
+	scene.add(obj);	
 %
 }
 
@@ -257,7 +270,7 @@ sub verticesToString {
 
 sub toString {
     my ($self, $trans)=@_;
-    $self->pointsToString("points");
+    $self->header . $self->pointsToString("points") . $self->trailer;
 }
 
 ##############################################################################################
@@ -308,7 +321,7 @@ sub linesToString {
 
 sub toString {
     my ($self, $trans)=@_;
-   $self->pointsToString("points") . $self->linesToString("line");
+   $self->header . $self->pointsToString("points") . $self->linesToString("line") . $self->trailer;
 }
 
 
@@ -321,24 +334,6 @@ use Polymake::Struct (
    [ '@ISA' => 'PointSet' ],
 );
 
-
-sub header {
-	my ($self, $var) = @_;
-	return $self->newGeometry($var);
-}
-
-
-sub trailer {
-	my ($self, $var) = @_;
-	my $mat = $var."_material";
-	return <<"%"
-	$var.computeFaceNormals();
-	$var.computeVertexNormals();
-	var object = new THREE.Mesh($var, $mat);
-	scene.add(object);
-
-%
-}
 
 sub newFace {
 	my ($self, $var, $indices) = @_;
@@ -357,7 +352,7 @@ sub facesToString {
 	my $facets = new Array<Array<Int>>($self->source->Facets);	
 
 	if ($self->source->FacetStyle !~ $Visual::hidden_re){
-		$text .= $self->header($var);
+		$text .= $self->newGeometry($var);
 		$text .= $self->verticesToString($var);
 
 		$text .= $self->newMaterial($var, "Facet");
@@ -372,7 +367,17 @@ sub facesToString {
 				}
 				$text.="\n";
 		}
-		$text .= $self->trailer($var);
+
+		my $mat = $var."_material";
+		$text .= <<"%"
+	
+	$var.computeFaceNormals();
+	$var.computeVertexNormals();
+	
+	var object = new THREE.Mesh($var, $mat);
+	obj.add(object);
+	
+%
 	}
 	
 
@@ -406,7 +411,7 @@ sub facesToString {
 
 sub toString {
 	my ($self, $transform)=@_;
-	return $self->pointsToString("points") . $self->facesToString($transform, "faces");
+	return $self->header . $self->pointsToString("points") . $self->facesToString($transform, "faces") . $self->trailer;
 }
 
 

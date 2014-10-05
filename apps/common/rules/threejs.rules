@@ -63,13 +63,13 @@ please specify the output File option or call reconfigure("common::threejs.rules
 
 sub command {
    my ($self, $filename)=@_;
-   my $htmltemplate = $self->tempfile.".html";
-   open my $fh, ">", $htmltemplate;
-   print $fh write_html_template("$filename");
-   
-#    my $pdfout = $self->tempfile.".pdf";
-#    my $pdfout_dir = $self->tempfile->dir;
-#    my $pdfout_name = $self->tempfile->basename;
+
+	my @threejs_ext = grep { $_->URI =~ "http://solros.de/polymake/threejs" } @{User::application("common")->extensions};
+	my $threejs_ext_path = $threejs_ext[0]->dir;
+
+   my $outdir = $self->tempfile->dir;
+	"cp -r $threejs_ext_path/external/js $outdir; $webbrowser $filename 1>/dev/null";
+
 #    "$pdflatex --output-directory=$pdfout_dir --jobname=$pdfout_name $latextemplate 1>/dev/null ; $pdfviewer $pdfout 1>/dev/null 2>/dev/null";
 }
 
@@ -85,19 +85,6 @@ sub new_drawing {
 sub append {
    my $self=shift;
    $self->graphics->append(@_);
-}
-
-sub write_html_template {
-my $threejsfilename=shift;
-my $text = <<'|';
-<<!--
-Polymake html template for ThreeJS-Output
-Copyright (c) 1997-2014
-Ewgenij Gawrilow, Michael Joswig (Technische Universitaet Berlin, Germany)
-http://www.polymake.org
--->
-|
-return $text;
 }
 
 
@@ -159,8 +146,7 @@ package application;
 #  or "| program" for a pipe.  Real file names are automatically completed with the ''.html'' suffix if needed.
 #
 #  An automatically generated file name is displayed in the verbose mode.
-# @option Bool NoHTML do not produce html skeleton in the file
-user_function threejs(Visual::Object+, { File => undef, NoHTML => 0 }) {
+user_function threejs(Visual::Object+, { File => undef }) {
    visualize_explicit(@_, "ThreeJS");
 }
 

@@ -5,11 +5,11 @@
 
 # URI is a unique identifier assigned to this extension.
 # This is the only mandatory entry in this file.
-URI http://solros.de/polymake/ThreeJS#0.9
+URI http://solros.de/polymake/threejs#0.1
 
 # Below you can put a short name for your extension.
 
-NAME ThreeJS
+NAME three.js
 
 # Below you can extol the features implemented in this extension,
 # put your copyright notice, or just refer to your website

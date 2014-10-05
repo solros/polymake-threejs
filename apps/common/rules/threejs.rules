@@ -92,8 +92,7 @@ sub append {
 # Create a three.js file.
 label threejs
 
-# The following are rarely used.
-# Much more common are the methods in apps/{graph,polytope,...}/rules/threejs.rules
+# find more methods in apps/{graph,polytope,...}/rules/threejs.rules
 
 global_method threejs.geometry: draw(Visual::PointSet, @) {
    my ($self, $PointSet)=@_;
@@ -149,6 +148,50 @@ package application;
 user_function threejs(Visual::Object+, { File => undef }) {
    visualize_explicit(@_, "ThreeJS");
 }
+
+
+user_function threejs_online(Visual::Object+, { File => undef }) {
+   visualize_explicit(@_, "ThreeJS_online");
+}
+
+
+
+package ThreeJS_online;
+
+our @ISA = "ThreeJS";
+
+
+
+package ThreeJS_online::Viewer;
+
+our @ISA = "ThreeJS::Viewer";
+
+use ThreeJS_online;
+use BackgroundViewer;
+use Visual::Transformation;
+
+use Polymake::Struct [ '@ISA' => 'SimpleViewer' ];
+
+
+sub new {
+   &_new;
+}
+
+
+sub command {
+   my ($self, $filename)=@_;
+
+	my @threejs_ext = grep { $_->URI =~ "http://solros.de/polymake/threejs" } @{User::application("common")->extensions};
+	my $threejs_ext_path = $threejs_ext[0]->dir;
+
+   my $outdir = $self->tempfile->dir;
+   
+   print "\ncopy and paste into a new tab in your webbrowser: \n\033[1;31m".$filename."\033[0m\n";
+
+	"cp -r $threejs_ext_path/external/js $outdir";
+}
+
+
 
 
 # Local Variables:

@@ -78,22 +78,62 @@ $title
 	
 	var controls = new THREE.TrackballControls( camera );
 				
-	camera.position.z = 5;		
+	camera.position.z = 5;
+	
+	var all_objects = [];
+	var centroids = [];
 %
 }
 
 sub trailer {
     return <<"%";
 
+	var c = new THREE.Vector3();
+	for (i = 0; i< all_objects.length; ++i) {
+		var obj = all_objects[i];
+		console.log(i);
+	}
 
 	var render = function () {
+
 		requestAnimationFrame(render);
+
+//		comment in for automatic explosion
+//		explode(updateFactor());
 
 		controls.update();
 		renderer.render(scene, camera);
 	};
 
 	render();
+
+	function computeCentroid(geom) {
+		centroid = new THREE.Vector3();
+		geom.vertices.forEach(function(v) {
+			centroid.add(v);			
+		});
+		centroid.divideScalar(geom.vertices.length);
+		return centroid;
+	}
+
+	function explode(factor) {
+		var obj, c;
+		for (var i = 0; i< all_objects.length; ++i) {
+			obj = all_objects[i];
+			c = centroids[i];
+	
+			obj.position.set(c.x*factor, c.y*factor, c.z*factor);
+		}	
+	}
+
+	var pos = 150* Math.PI;
+
+	function updateFactor() {
+		pos++;
+		return Math.sin(.01*pos)+1;
+	}
+
+
 </script>
 
 </body>
@@ -225,13 +265,15 @@ sub newMaterial {
 
 sub header {
 	return <<"%"
-	var obj = new THREE.Object3D();	
+	var obj = new THREE.Object3D();
 %
 }
 
 sub trailer {
 	return <<"%"
-	scene.add(obj);	
+	scene.add(obj);
+	all_objects.push(obj);
+
 %
 }
 
@@ -273,6 +315,13 @@ sub verticesToString {
     foreach (@coords) {
         $text .= $self->newVertex($var, $_);
    }
+
+	$text .= <<"%";
+	
+	centroids.push(computeCentroid($var));
+
+%
+
 	return $text;
 }
 

@@ -42,6 +42,9 @@ sub append {
 
 sub header {
    my ($self, $trans) = @_;
+   print "trans:\n";
+   print $trans;
+   print "\n";
    my $who=$ENV{USER};
    my $when=localtime();
    my $title=$self->title || "unnamed";
@@ -51,7 +54,7 @@ sub header {
    my $zaxis = $trans->col(3);
    
    my $view_point = join ", ", @ThreeJS::default::view_point;
-   my $bgColor = Util::rgbToHex(@ThreeJS::default::bgColor); # TODO: recognize different ways to define colors
+   my $bgColor = Utils::rgbToHex(@ThreeJS::default::bgColor); # TODO: recognize different ways to define colors
    my $bgOp = $ThreeJS::default::bgOpacity;
    my $camera_angle = $ThreeJS::default::camera_angle;
    my $hither = $ThreeJS::default::hither;
@@ -70,16 +73,22 @@ $title
 	</head>
 
 <body>
+
+<div id="model"></div>
+
 <script src="js/three.min.js"></script>
 <script src="js/controls/TrackballControls.js"></script>
 <script src="js/Detector.js"></script>
 
+
 <script>
+	var container = document.getElementById( 'model' );
 	var renderer = Detector.webgl? new THREE.WebGLRenderer(): new THREE.CanvasRenderer();
-	document.body.appendChild(renderer.domElement);
 
 	renderer.setSize(window.innerWidth, window.innerHeight);
-	renderer.setClearColor($bgColor, $bgOpacity);
+	renderer.setClearColor($bgColor, $bgOp);
+
+	container.appendChild(renderer.domElement);
 
 
 	var scene = new THREE.Scene();
@@ -87,6 +96,7 @@ $title
 					
 	camera.position.set($view_point);
 
+	var controls = new THREE.TrackballControls(camera, container);
 	
 	var all_objects = [];
 	var centroids = [];
@@ -257,7 +267,7 @@ sub newMaterial {
 		$material_string .= "linewidth: $thick, ";
 		
 		my $color = $self->source->EdgeColor;
-		my $col_string = Utils::rgbToHex(@$color);
+		my $col_string = (is_code($color)) ? Utils::rgbToHex(@{$color->(0)}) : Utils::rgbToHex(@$color);
 		$material_string .= "color: $col_string, ";
 	}
 	

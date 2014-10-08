@@ -49,6 +49,13 @@ sub header {
    my $xaxis = $trans->col(1);
    my $yaxis = $trans->col(2);
    my $zaxis = $trans->col(3);
+   
+   my $view_point = join ", ", @ThreeJS::default::view_point;
+   my $bgColor = Util::rgbToHex(@ThreeJS::default::bgColor); # TODO: recognize different ways to define colors
+   my $bgOp = $ThreeJS::default::bgOpacity;
+   my $camera_angle = $ThreeJS::default::camera_angle;
+   my $hither = $ThreeJS::default::hither;
+   my $yon = $ThreeJS::default::yon;
    return <<"%";
 <!--
 polymake for $who
@@ -69,16 +76,17 @@ $title
 
 <script>
 	var renderer = Detector.webgl? new THREE.WebGLRenderer(): new THREE.CanvasRenderer();
-	renderer.setSize(window.innerWidth, window.innerHeight);
 	document.body.appendChild(renderer.domElement);
+
+	renderer.setSize(window.innerWidth, window.innerHeight);
+	renderer.setClearColor($bgColor, $bgOpacity);
 
 
 	var scene = new THREE.Scene();
-	var camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-	
-	var controls = new THREE.TrackballControls( camera );
-				
-	camera.position.z = 5;
+	var camera = new THREE.PerspectiveCamera($camera_angle, window.innerWidth/window.innerHeight, $hither, $yon);
+					
+	camera.position.set($view_point);
+
 	
 	var all_objects = [];
 	var centroids = [];

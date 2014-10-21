@@ -33,16 +33,25 @@ custom @bgColor = (1, 1, 1);
 custom $bgOpacity = 1;
 
 # coordinates of the viewpoint
-custom @view_point=(0, 0, 5);
+custom @view_point = (0, 0, 5);
+
+# coordinates of a point on the view axis: default is the origin
+custom @view_direction = (0, 0, 0);
+
+# camera orientation: default is y-axis towards zenith
+custom @view_up = (0, 1, 0);
+
+# scaling factor
+custom $scale = 1;
 
 # camera field of view angle
-custom $camera_angle = 75;
+custom $fov = 75;
 
 # camera near plane
-custom $hither = .1;
+custom $near_plane = .1;
 
 # camera far plane
-custom $yon = 1000;
+custom $far_plane = 1000;
 
 
 

@@ -56,9 +56,12 @@ sub header {
    my $view_point = join ", ", @ThreeJS::default::view_point;
    my $bgColor = Utils::rgbToHex(@ThreeJS::default::bgColor); # TODO: recognize different ways to define colors
    my $bgOp = $ThreeJS::default::bgOpacity;
-   my $camera_angle = $ThreeJS::default::camera_angle;
-   my $hither = $ThreeJS::default::hither;
-   my $yon = $ThreeJS::default::yon;
+   my $camera_angle = $ThreeJS::default::fov;
+   my $near = $ThreeJS::default::near_plane;
+   my $far = $ThreeJS::default::far_plane;
+   my $view_direction = join ", ", @ThreeJS::default::view_direction;
+   my $view_up = join ", ", @ThreeJS::default::view_up;
+   my $scale = $ThreeJS::default::scale;
    return <<"%";
 <!--
 polymake for $who
@@ -92,9 +95,11 @@ $title
 
 
 	var scene = new THREE.Scene();
-	var camera = new THREE.PerspectiveCamera($camera_angle, window.innerWidth/window.innerHeight, $hither, $yon);
+	var camera = new THREE.PerspectiveCamera($camera_angle, window.innerWidth/window.innerHeight, $near, $far);
 					
 	camera.position.set($view_point);
+	camera.lookAt($view_direction);
+	camera.up.set($view_up);
 
 	var controls = new THREE.TrackballControls(camera, container);
 	

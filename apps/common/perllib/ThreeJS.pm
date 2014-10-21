@@ -42,26 +42,25 @@ sub append {
 
 sub header {
    my ($self, $trans) = @_;
-   print "trans:\n";
-   print $trans;
-   print "\n";
    my $who=$ENV{USER};
    my $when=localtime();
    my $title=$self->title || "unnamed";
 
-   my $xaxis = $trans->col(1);
-   my $yaxis = $trans->col(2);
-   my $zaxis = $trans->col(3);
-   
-   my $view_point = join ", ", @ThreeJS::default::view_point;
+	my $source = ${$self->geometries}[0]->source;
+   my ($view_point, $view_direction, $view_up, $scale) = $source->transform2view($trans, \%ThreeJS::default::);
+	$view_point = join ", ", @$view_point;
+	$view_direction = join ", ", @$view_direction;
+	$view_up = join ", ", @$view_up;
+#	$view_point =~ s/ /, /g;
+#	$view_direction =~ s/ /, /g;
+#	$view_up =~ s/ /, /g;
+
    my $bgColor = Utils::rgbToHex(@ThreeJS::default::bgColor); # TODO: recognize different ways to define colors
    my $bgOp = $ThreeJS::default::bgOpacity;
    my $camera_angle = $ThreeJS::default::fov;
    my $near = $ThreeJS::default::near_plane;
    my $far = $ThreeJS::default::far_plane;
-   my $view_direction = join ", ", @ThreeJS::default::view_direction;
-   my $view_up = join ", ", @ThreeJS::default::view_up;
-   my $scale = $ThreeJS::default::scale;
+
    return <<"%";
 <!--
 polymake for $who
@@ -111,11 +110,11 @@ $title
 sub trailer {
     return <<"%";
 
-	var c = new THREE.Vector3();
-	for (i = 0; i< all_objects.length; ++i) {
-		var obj = all_objects[i];
-		console.log(i);
-	}
+//	var c = new THREE.Vector3();
+//	for (i = 0; i< all_objects.length; ++i) {
+//		var obj = all_objects[i];
+//		console.log(i);
+//	}
 
 	var render = function () {
 
@@ -166,7 +165,8 @@ sub trailer {
 
 sub toString {
    my ($self)=@_;
-   my $trans= defined($self->transform) ? $self->transform : (new Matrix<Float>([[1,0,0,0],[0,2,0,-0.4],[0,0,2,-1],[0,0,0,1]]));
+#   my $trans= defined($self->transform) ? $self->transform : (new Matrix<Float>([[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]]));
+	my $trans = $self->transform;
    $self->header($trans) . join("", map { $_->toString($trans) } @{$self->geometries}) . $self->trailer;
 }
 

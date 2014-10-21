@@ -86,7 +86,7 @@ $title
 
 <script>
 	var container = document.getElementById( 'model' );
-	var renderer = Detector.webgl? new THREE.WebGLRenderer(): new THREE.CanvasRenderer();
+	var renderer = Detector.webgl? new THREE.WebGLRenderer({antialias: true}): new THREE.CanvasRenderer({antialias: true});
 
 	renderer.setSize(window.innerWidth, window.innerHeight);
 	renderer.setClearColor($bgColor, $bgOp);

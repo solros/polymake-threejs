@@ -68,6 +68,7 @@ $when
 $title
 -->
 
+
 <html>
 	<head>
 		<title>$title</title>
@@ -108,59 +109,11 @@ $title
 }
 
 sub trailer {
-    return <<"%";
+	my @threejs_ext = grep { $_->URI =~ "http://solros.de/polymake/threejs" } @{User::application("common")->extensions};
+	my $threejs_ext_path = $threejs_ext[0]->dir;
 
-//	var c = new THREE.Vector3();
-//	for (i = 0; i< all_objects.length; ++i) {
-//		var obj = all_objects[i];
-//		console.log(i);
-//	}
-
-	var render = function () {
-
-		requestAnimationFrame(render);
-
-//		comment in for automatic explosion
-//		explode(updateFactor());
-
-		controls.update();
-		renderer.render(scene, camera);
-	};
-
-	render();
-
-	function computeCentroid(geom) {
-		centroid = new THREE.Vector3();
-		geom.vertices.forEach(function(v) {
-			centroid.add(v);			
-		});
-		centroid.divideScalar(geom.vertices.length);
-		return centroid;
-	}
-
-	function explode(factor) {
-		var obj, c;
-		for (var i = 0; i< all_objects.length; ++i) {
-			obj = all_objects[i];
-			c = centroids[i];
-	
-			obj.position.set(c.x*factor, c.y*factor, c.z*factor);
-		}	
-	}
-
-	var pos = 150* Math.PI;
-
-	function updateFactor() {
-		pos++;
-		return Math.sin(.01*pos)+1;
-	}
-
-
-</script>
-
-</body>
-</html>
-%
+	open FILEHANDLE, "$threejs_ext_path/trailer_string.html" or die $!;
+	do { local $/; <FILEHANDLE> };
 }
 
 sub toString {

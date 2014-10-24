@@ -43,6 +43,45 @@
 		return Math.sin(.01*pos)+1;
 	}
 
+	function makelabel(message, x, y, z, params) {
+		var spritey = textSprite( message, params );
+		spritey.position.set(x, y, z);
+		obj.add(spritey);
+	}
+
+	function textSprite(message, parameters)
+	{
+		if ( parameters === undefined ) parameters = {};
+
+		var fontface = "Helvetica";
+
+		var fontsize = parameters.hasOwnProperty("fontsize") ? 
+			parameters["fontsize"] : 18;
+		fontsize = fontsize*10;
+
+		var canvas = document.createElement('canvas');
+		var size = 1000;
+		canvas.width = size;
+		canvas.height = size;
+		var context = canvas.getContext('2d');
+		context.font = fontsize + "px " + fontface;
+
+		// text color
+		context.fillStyle = "rgba(0, 0, 0, 1.0)";
+
+		context.fillText(message, size/2, size/2);
+
+		// canvas contents will be used for a texture
+		var texture = new THREE.Texture(canvas);
+		texture.needsUpdate = true;
+
+		var spriteMaterial = new THREE.SpriteMaterial(
+			{map: texture, useScreenCoordinates: false});
+		var sprite = new THREE.Sprite(spriteMaterial);
+		return sprite;
+	}
+
+
 
 </script>
 

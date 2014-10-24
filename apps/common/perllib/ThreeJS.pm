@@ -149,13 +149,14 @@ sub newVertex {
 }
 
 sub newPoint {
-	my ($self, $var, $coords, $size) = @_;
+	my ($self, $var, $coords, $size, $label) = @_;
 	my $radius = $size/50;
 	my $mat = $var."_material";
 	return <<"%"
 	var sphere = new THREE.Mesh(new THREE.SphereGeometry($radius), $mat);
 	sphere.position.set($coords);
 	obj.add(sphere);
+	makelabel("$label", $coords);
 %
 }
 
@@ -256,10 +257,10 @@ sub trailer {
 
 sub pointsToString {
     my ($self, $var)=@_;
-
-    my $labels=$self->source->VertexLabels; # TODO: support labels
     
-    my $text = "";
+   my $labels = $self->source->VertexLabels;
+
+   my $text = "";
 
 	if ($self->source->VertexStyle !~ $Visual::hidden_re){
 		my @coords = Utils::pointCoords($self);
@@ -271,8 +272,9 @@ sub pointsToString {
 
 		$text .= "\n	<!-- POINTS -->\n";
 	
+		my $i=-1;
 		foreach (@coords){
-			$text .= $self->newPoint($var, $_, $thickness);
+			$text .= $self->newPoint($var, $_, $thickness, $labels->(++$i));
 		}
 		
 		$text .= "\n";

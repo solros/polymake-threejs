@@ -185,7 +185,7 @@ sub newMaterial {
 	my $material;
 	my @code_props = ();
 	my @type_props;
-	my $number;
+	my $number = 0;
 
 	my $text = "	<!-- $type style -->\n";
 
@@ -200,14 +200,20 @@ sub newMaterial {
 	} elsif ($type eq "Edge") {
 		$material = "LineBasicMaterial";	
 		@type_props = ("EdgeColor", "EdgeThickness");
-		$number = $self->source->NEdges;
+		
+		
+		if ($self->source->can("NEdges")) {
+			$number = $self->source->NEdges;
+		} elsif ($self->source->can("n_edges")) {
+			$number = $self->source->n_edges;
+		}
 	} else {
 		# should not happen
 	}
 	my $common_string = $self->find_common_string(\@code_props, \@type_props);		
 
 	if (@code_props) {
-		die "Edge decorations must be constants." if $type eq "Edge";
+		die "Edge decorations must be constants when using three.js." if $type eq "Edge";
 	
 		return $text . $self->codeMaterial($matvar, $material, $common_string, \@code_props, $number);
 	} else {
@@ -506,6 +512,12 @@ sub pointCoords {
 	foreach (@{$self->source->Vertices}) {
 		my $point=ref($_) ? Visual::print_coords($_) : "$_".(" 0"x($d-1));
 		$point =~ s/\s+/, /g;
+		if ($d == 2) {
+			$point.= ", 0";
+		}
+		if ($d == 1) {
+			$point.= ", 0, 0";
+		}
 		push @coords, $point;
 	}
 	return @coords;

@@ -148,9 +148,12 @@ sub newVertex {
 }
 
 sub newPoint {
-	my ($self, $var, $coords, $size) = @_;
-	my $radius = $size/50;
-	my $mat = $var."_material";
+	my ($self, $var, $coords, $size, $index) = @_;
+	my $r = (is_code($size)) ? $size->($index) : $size;
+	return "" unless $r;
+	
+	my $radius = $r/50;
+	my $mat = (is_code($self->source->VertexColor)) ? "materials[$index]" : $var."_material";
 	return <<"%"
 	var sphere = new THREE.Mesh(new THREE.SphereGeometry($radius), $mat);
 	sphere.position.set($coords);
@@ -246,16 +249,9 @@ sub pointsToString {
 
 		$text .= "\n	<!-- POINTS -->\n";
 		
-		if (is_code($thickness)) {
-			my $i = 0;
-			foreach (@coords){
-				my $t = $thickness->($i++);
-				$text .= $self->newPoint($var, $_, $t) if $t;
-			} 
-		} else {
-			foreach (@coords){
-				$text .= $self->newPoint($var, $_, $thickness);
-			}
+		my $i = 0;
+		foreach (@coords){
+			$text .= $self->newPoint($var, $_, $thickness, $i++);
 		}
 		if ($labels !~	$Visual::hidden_re && $labels != "") {
 			my $i=-1;

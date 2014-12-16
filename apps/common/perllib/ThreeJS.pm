@@ -118,7 +118,6 @@ sub trailer {
 
 sub toString {
    my ($self)=@_;
-#   my $trans= defined($self->transform) ? $self->transform : (new Matrix<Float>([[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]]));
 	my $trans = $self->transform;
    $self->header($trans) . join("", map { $_->toString($trans) } @{$self->geometries}) . $self->trailer;
 }
@@ -136,34 +135,40 @@ use Polymake::Struct (
 
 sub newGeometry {
 	my ($self, $var) = @_;
-	return <<"%"
+	return <<"%";
 	var $var = new THREE.Geometry();
 %
 }
 
 sub newVertex {
 	my ($self, $var, $coords) = @_;
-	return <<"%"
+	return <<"%";
 	$var.vertices.push(new THREE.Vector3($coords));
 %
 }
 
 sub newPoint {
-	my ($self, $var, $coords, $size, $label) = @_;
+	my ($self, $var, $coords, $size) = @_;
 	my $radius = $size/50;
 	my $mat = $var."_material";
-	return <<"%"
+	return <<"%";
 	var sphere = new THREE.Mesh(new THREE.SphereGeometry($radius), $mat);
 	sphere.position.set($coords);
 	obj.add(sphere);
-	makelabel("$label", $coords);
+%
+}
+
+sub newLabel {
+	my ($self, $coords, $label) = @_;
+	return <<"%";
+	makelabel($label, $coords);
 %
 }
 
 sub newLine {
 	my ($self, $var) = @_;
 	my $mat = $var."_material";
-	return <<"%"
+	return <<"%";
 	obj.add(new THREE.Line($var, $mat));
 	
 %
@@ -173,81 +178,48 @@ sub newLine {
 sub newMaterial {
 	my ($self, $var, $type) = @_;
 	my $matvar = $var."_material";
-	my $material;
-	my $material_bracket1 = "({";
-	my $material_bracket2 = "})";
-	my $material_string = "";
-	
 
-	my $text = "";
-	
+	my $material;
+	my @code_props = ();
+	my @type_props;
+	my $number;
+
+	my $text = "	<!-- $type style -->\n";
+
 	if ($type eq "Vertex") {
 		$material = "MeshBasicMaterial";
-
-		my $color = $self->source->VertexColor;
-		my $col_string = Utils::rgbToHex(@$color);
-		$material_string .= "color: $col_string, ";
-		
-	} elsif ($type eq "Point") {
-		$material = "MeshBasicMaterial";
-		
-		my $color = $self->source->PointColor;
-		my $col_string = Utils::rgbToHex(@$color);
-		$material_string .= "color: $col_string, ";
-
+		@type_props = ("VertexColor");
+		$number = @{$self->source->Vertices};
 	} elsif ($type eq "Facet") {
-		my $transp = 1 - $self->source->FacetTransparency || 1;
-		$material_string .= "transparent: true, opacity: $transp, ";
-
-		my $color = $self->source->FacetColor;
-		if (!is_code($color)) {
-			$material = "MeshBasicMaterial";
-			
-			my $col_string = Utils::rgbToHex(@$color);
-			$material_string .= "color: $col_string, ";
-		} else {
-			$material = "MeshFaceMaterial";
-			$text .= "\n    var materials = [";
-			foreach (my $i = 0; $i< @{$self->source->Facets}; ++$i) {
-            my $hexstring = Utils::rgbToHex(@{$color->($i)});
-            $text .= "\n		new THREE.MeshBasicMaterial({color: $hexstring, $material_string}),"; 
-			}
-			$text .= "\n	];\n";
-		
-			$material_string = "materials";
-			$material_bracket1 = "(";
-			$material_bracket2 = ")";
-		}
-
+		$material = "MeshBasicMaterial";		
+		@type_props = ("FacetColor", "FacetTransparency");
+		$number = @{$self->source->Facets};
 	} elsif ($type eq "Edge") {
-		$material = "LineBasicMaterial";
-		
-		my $thick = $self->source->EdgeThickness || 1;
-		$material_string .= "linewidth: $thick, ";
-		
-		my $color = $self->source->EdgeColor;
-		my $col_string = (is_code($color)) ? Utils::rgbToHex(@{$color->(0)}) : Utils::rgbToHex(@$color);
-		$material_string .= "color: $col_string, ";
+		$material = "LineBasicMaterial";	
+		@type_props = ("EdgeColor", "EdgeThickness");
+		$number = @{$self->source->Edges};
+	} else {
+		# should not happen
+	}
+	my $common_string = $self->find_common_string(\@code_props, \@type_props);		
+
+	unless (length(@code_props)) {
+		return $text . Utils::constantMaterial($matvar, $material, $common_string);
 	}
 	
-	return <<"%"
-	
-	<!-- $type style -->
-	$text
-	var $matvar = new THREE.$material $material_bracket1 $material_string $material_bracket2;
-	$matvar.side = THREE.DoubleSide;
-	
-%
+	return $text . $self->codeMaterial($matvar, $material_type, $common_string, \@code_props, $number);
 }
 
+
+
 sub header {
-	return <<"%"
+	return <<"%";
 	var obj = new THREE.Object3D();
 %
 }
 
 sub trailer {
-	return <<"%"
+	return <<"%";
 	scene.add(obj);
 	all_objects.push(obj);
 
@@ -271,10 +243,17 @@ sub pointsToString {
 		$text .= $self->newMaterial("points", "Vertex");
 
 		$text .= "\n	<!-- POINTS -->\n";
-	
-		my $i=-1;
+
 		foreach (@coords){
-			$text .= $self->newPoint($var, $_, $thickness, $labels->(++$i));
+			$text .= $self->newPoint($var, $_, $thickness);
+		}
+		if ($labels !~	$Visual::hidden_re && $labels != "") {
+			my $i=-1;
+			foreach (@coords){
+				if (defined(my $label = $labels->(++$i))) {
+					$text .= $self->newLabel($_, $label);
+				}
+			}
 		}
 		
 		$text .= "\n";
@@ -308,6 +287,56 @@ sub toString {
     my ($self, $trans)=@_;
     $self->header . $self->pointsToString("points") . $self->trailer;
 }
+
+
+
+sub find_common_string {
+	my ($self, $code_props, $type_props) = @_;
+	
+	my $common_string = "";
+	foreach (@$type_props) {
+		if (!is_code($self->source->{$_})) {
+			push @$code_props, $_;
+		} else {
+			$common_string .= Utils::writeDecor($_, $self->source->{$_});
+		}
+	}
+	return $common_string;
+}
+
+
+sub codeMaterial {
+	my ($self, $matvar, $material_type, $common_string, $code_props, $number) = @_;
+	
+	my $text = "	var materials = [\n";
+
+	for (my $i=0; $i<$number; ++$i) {
+		$text .= $self->oneCodeMaterial($i, $material_type, $common_string, $code_props);
+	}
+
+	$text .= <<"%";
+	];
+	var $matvar = new THREE.MeshFaceMaterial( materials );
+	$matvar.side = THREE.DoubleSide;
+
+%	
+	return $text;
+}
+
+sub oneCodeMaterial {
+	my ($self, $index, $material_type, $common_string, $code_props) = @_;
+
+	my $text = "		new THREE.".$material_type."({ ".$common_string;
+	
+	foreach (@$code_props) {
+		$text .= Utils::writeDecor($_, $self->source->{$_}->($index));
+	}
+	
+	$text .= "}),\n";
+	
+	return $text;
+}
+
 
 ##############################################################################################
 #
@@ -351,7 +380,6 @@ sub linesToString {
 		}
 	}
 	
-
 	return $text;
 }
 
@@ -373,17 +401,13 @@ use Polymake::Struct (
 
 sub newFace {
 	my ($self, $var, $indices, $facet, $facet_color) = @_;
-#	my $color;
 	my $m_index = 0;
 	if (is_code($facet_color)) {
-#		print $facet."\t";
-#		$color = join ", ", @{$facet_color->($facet)};
-#		print $color."\n";
 		$m_index = $facet;
 	} else {
 #		$color = Utils::rgbToHex(@{$facet_color});
 	}
-	return <<"%"
+	return <<"%";
 	$var.faces.push(new THREE.Face3($indices, undefined, undefined, $m_index));
 %
 }
@@ -408,15 +432,16 @@ sub facesToString {
 		$text .= "\n  <!-- FACETS --> \n";  
 		my $facet_color = $self->source->FacetColor;
 		for (my $facet = 0; $facet<@$facets; ++$facet) {
+			# triangulate the facet
 			for (my $triangle = 0; $triangle<@{$facets->[$facet]}-2; ++$triangle) {
 				my @vs = @{$facets->[$facet]}[0, $triangle+1, $triangle+2];
-					$text .= $self->newFace($var, join(", ", @vs), $facet, $facet_color);
-				}
-				$text.="\n";
+				$text .= $self->newFace($var, join(", ", @vs), $facet, $facet_color);
+			}
+			$text.="\n";
 		}
 
 		my $mat = $var."_material";
-		$text .= <<"%"
+		$text .= <<"%";
 	
 	$var.computeFaceNormals();
 	$var.computeVertexNormals();
@@ -462,6 +487,7 @@ sub toString {
 }
 
 
+##############################################################################################
 
 package ThreeJS::Utils;
 
@@ -484,6 +510,37 @@ sub pointCoords {
 	}
 	return @coords;
 }
+
+
+sub writeDecor {
+	my ($name, $value) = @_;
+	
+	if ($name =~ "Color") {
+		return "color: " . Utils::rgbToHex(@$value) . ", ";
+	}
+	
+	if ($name eq "FacetTransparency") {
+		return "transparent: true, opacity: " . 1-$value . ", ";
+	}
+	
+	if ($name eq "EdgeThickness") {
+		return "linewidth: $value, ";
+	}
+}
+
+
+sub constantMaterial {
+	my ($matvar, $material_type, $common_string) = @_;
+
+	return << "%";
+	
+	var $matvar = new THREE.$material ({$common_string});
+	$matvar.side = THREE.DoubleSide;
+	
+%
+}
+
+
 
 
 1

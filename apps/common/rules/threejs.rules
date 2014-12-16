@@ -85,8 +85,6 @@ sub command {
 
    my $outdir = $self->tempfile->dir;
 	"cp -r $threejs_ext_path/external/js $outdir; $webbrowser $filename 1>/dev/null";
-
-#    "$pdflatex --output-directory=$pdfout_dir --jobname=$pdfout_name $latextemplate 1>/dev/null ; $pdfviewer $pdfout 1>/dev/null 2>/dev/null";
 }
 
 sub new_drawing {

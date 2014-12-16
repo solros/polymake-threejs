@@ -51,11 +51,8 @@ sub header {
 	$view_point = join ", ", @$view_point;
 	$view_direction = join ", ", @$view_direction;
 	$view_up = join ", ", @$view_up;
-#	$view_point =~ s/ /, /g;
-#	$view_direction =~ s/ /, /g;
-#	$view_up =~ s/ /, /g;
 
-   my $bgColor = Utils::rgbToHex(@ThreeJS::default::bgColor); # TODO: recognize different ways to define colors
+   my $bgColor = Utils::rgbToHex(@ThreeJS::default::bgColor);
    my $bgOp = $ThreeJS::default::bgOpacity;
    my $camera_angle = $ThreeJS::default::fov;
    my $near = $ThreeJS::default::near_plane;
@@ -79,9 +76,7 @@ $title
 
 <div id="model"></div>
 
-<script src="js/three.min.js"></script>
-<script src="js/controls/TrackballControls.js"></script>
-<script src="js/Detector.js"></script>
+<script src="js/three_for_polymake.min.js"></script>
 
 
 <script>
@@ -213,8 +208,10 @@ sub newMaterial {
 	my $common_string = $self->find_common_string(\@code_props, \@type_props);		
 
 	if (@code_props) {
-		die "Edge decorations must be constants when using three.js." if $type eq "Edge";
-	
+#		die "Edge decorations must be constants when using three.js." if $type eq "Edge";
+		if ($type eq "Edge") {
+			return $text . $self->edgeMaterial($matvar, $material, $common_string, \@code_props);
+		}
 		return $text . $self->codeMaterial($matvar, $material, $common_string, \@code_props, $number);
 	} else {
 		return $text . Utils::constantMaterial($matvar, $material, "{".$common_string."}");
@@ -345,6 +342,18 @@ sub oneCodeMaterial {
 	return $text;
 }
 
+sub edgeMaterial {
+	my ($self, $matvar, $material_type, $common_string, $code_props) = @_;
+
+	my $text = "		var $matvar = new THREE.".$material_type."({ " . $common_string;
+	
+	foreach (@$code_props) {
+		$text .= Utils::writeDecor($_, $self->source->$_->(0));
+	}
+	$text .= "});\n";
+	
+	return $text;
+}
 
 ##############################################################################################
 #
@@ -510,6 +519,7 @@ sub pointCoords {
 	my @coords = ();
    my $d = is_object($self->source->Vertices) ? $self->source->Vertices->cols : 3;
 	foreach (@{$self->source->Vertices}) {
+#		print $_."		";
 		my $point=ref($_) ? Visual::print_coords($_) : "$_".(" 0"x($d-1));
 		$point =~ s/\s+/, /g;
 		if ($d == 2) {
@@ -518,6 +528,7 @@ sub pointCoords {
 		if ($d == 1) {
 			$point.= ", 0, 0";
 		}
+#		print $point."\n";
 		push @coords, $point;
 	}
 	return @coords;

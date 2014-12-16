@@ -135,14 +135,14 @@ use Polymake::Struct (
 
 sub newGeometry {
 	my ($self, $var) = @_;
-	return <<"%";
+	return <<"%"
 	var $var = new THREE.Geometry();
 %
 }
 
 sub newVertex {
 	my ($self, $var, $coords) = @_;
-	return <<"%";
+	return <<"%"
 	$var.vertices.push(new THREE.Vector3($coords));
 %
 }
@@ -151,7 +151,7 @@ sub newPoint {
 	my ($self, $var, $coords, $size) = @_;
 	my $radius = $size/50;
 	my $mat = $var."_material";
-	return <<"%";
+	return <<"%"
 	var sphere = new THREE.Mesh(new THREE.SphereGeometry($radius), $mat);
 	sphere.position.set($coords);
 	obj.add(sphere);
@@ -160,15 +160,15 @@ sub newPoint {
 
 sub newLabel {
 	my ($self, $coords, $label) = @_;
-	return <<"%";
-	makelabel($label, $coords);
+	return <<"%"
+	makelabel("$label", $coords);
 %
 }
 
 sub newLine {
 	my ($self, $var) = @_;
 	my $mat = $var."_material";
-	return <<"%";
+	return <<"%"
 	obj.add(new THREE.Line($var, $mat));
 	
 %
@@ -197,29 +197,29 @@ sub newMaterial {
 	} elsif ($type eq "Edge") {
 		$material = "LineBasicMaterial";	
 		@type_props = ("EdgeColor", "EdgeThickness");
-		$number = @{$self->source->Edges};
+		$number = $self->source->NEdges;
 	} else {
 		# should not happen
 	}
 	my $common_string = $self->find_common_string(\@code_props, \@type_props);		
 
-	unless (length(@code_props)) {
-		return $text . Utils::constantMaterial($matvar, $material, $common_string);
+	if (@code_props) {
+		return $text . $self->codeMaterial($matvar, $material, $common_string, \@code_props, $number);
+	} else {
+		return $text . Utils::constantMaterial($matvar, $material, "{".$common_string."}");
 	}
-	
-	return $text . $self->codeMaterial($matvar, $material_type, $common_string, \@code_props, $number);
 }
 
 
 
 sub header {
-	return <<"%";
+	return <<"%"
 	var obj = new THREE.Object3D();
 %
 }
 
 sub trailer {
-	return <<"%";
+	return <<"%"
 	scene.add(obj);
 	all_objects.push(obj);
 
@@ -295,10 +295,10 @@ sub find_common_string {
 	
 	my $common_string = "";
 	foreach (@$type_props) {
-		if (!is_code($self->source->{$_})) {
+		if (is_code($self->source->$_)) {
 			push @$code_props, $_;
 		} else {
-			$common_string .= Utils::writeDecor($_, $self->source->{$_});
+			$common_string .= Utils::writeDecor($_, $self->source->$_);
 		}
 	}
 	return $common_string;
@@ -314,13 +314,9 @@ sub codeMaterial {
 		$text .= $self->oneCodeMaterial($i, $material_type, $common_string, $code_props);
 	}
 
-	$text .= <<"%";
-	];
-	var $matvar = new THREE.MeshFaceMaterial( materials );
-	$matvar.side = THREE.DoubleSide;
+	$text .= "	];\n";
 
-%	
-	return $text;
+	return $text .= Utils::constantMaterial($matvar, "MeshFaceMaterial", "materials");
 }
 
 sub oneCodeMaterial {
@@ -329,7 +325,7 @@ sub oneCodeMaterial {
 	my $text = "		new THREE.".$material_type."({ ".$common_string;
 	
 	foreach (@$code_props) {
-		$text .= Utils::writeDecor($_, $self->source->{$_}->($index));
+		$text .= Utils::writeDecor($_, $self->source->$_->($index));
 	}
 	
 	$text .= "}),\n";
@@ -407,7 +403,7 @@ sub newFace {
 	} else {
 #		$color = Utils::rgbToHex(@{$facet_color});
 	}
-	return <<"%";
+	return <<"%"
 	$var.faces.push(new THREE.Face3($indices, undefined, undefined, $m_index));
 %
 }
@@ -441,7 +437,7 @@ sub facesToString {
 		}
 
 		my $mat = $var."_material";
-		$text .= <<"%";
+		$text .= <<"%"
 	
 	$var.computeFaceNormals();
 	$var.computeVertexNormals();
@@ -520,21 +516,25 @@ sub writeDecor {
 	}
 	
 	if ($name eq "FacetTransparency") {
-		return "transparent: true, opacity: " . 1-$value . ", ";
+		my $opacity = defined($value) ? 1-$value : 1;
+		if ($opacity == 1) {
+			return "";
+		}
+		return "transparent: true, opacity: $opacity, ";
 	}
 	
 	if ($name eq "EdgeThickness") {
-		return "linewidth: $value, ";
+		my $width = $value || 1;
+		return "linewidth: $width, ";
 	}
 }
 
 
 sub constantMaterial {
-	my ($matvar, $material_type, $common_string) = @_;
+	my ($matvar, $material_type, $material_string) = @_;
 
-	return << "%";
-	
-	var $matvar = new THREE.$material ({$common_string});
+	return << "%";	
+	var $matvar = new THREE.$material_type ( $material_string );
 	$matvar.side = THREE.DoubleSide;
 	
 %

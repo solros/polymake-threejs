@@ -107,7 +107,7 @@ sub trailer {
 	my @threejs_ext = grep { $_->URI =~ "http://solros.de/polymake/threejs" } @{User::application("common")->extensions};
 	my $threejs_ext_path = $threejs_ext[0]->dir;
 
-	open FILEHANDLE, "$threejs_ext_path/trailer_string.html" or die $!;
+	open FILEHANDLE, "$threejs_ext_path/resources/trailer_string.html" or die $!;
 	do { local $/; <FILEHANDLE> };
 }
 
@@ -223,6 +223,7 @@ sub newMaterial {
 sub header {
 	return <<"%"
 	var obj = new THREE.Object3D();
+	
 %
 }
 
@@ -277,7 +278,7 @@ sub verticesToString {
 	my $text = "";
 	
     my @coords = Utils::pointCoords($self);
-    $text .= "\n  <!-- VERTICES -->\n";
+    $text .= "\n   <!-- VERTICES -->\n";
     foreach (@coords) {
         $text .= $self->newVertex($var, $_);
    }
@@ -444,7 +445,7 @@ sub facesToString {
 
     
     	# draw facets
-		$text .= "\n  <!-- FACETS --> \n";  
+		$text .= "\n   <!-- FACETS --> \n";  
 		my $facet_color = $self->source->FacetColor;
 		for (my $facet = 0; $facet<@$facets; ++$facet) {
 			# triangulate the facet
@@ -477,7 +478,7 @@ sub facesToString {
 		$text .= $self->newMaterial($var, "Edge");		
     
     	# draw edges
-		$text .= "\n  <!-- EDGES --> \n";  
+		$text .= "\n   <!-- EDGES --> \n";  
 		my @coords = Utils::pointCoords($self);
 
 		for (my $facet = 0; $facet<@$facets; ++$facet) {

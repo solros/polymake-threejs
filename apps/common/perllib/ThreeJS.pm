@@ -204,6 +204,8 @@ sub newMaterial {
 	my $common_string = $self->find_common_string(\@code_props, \@type_props);		
 
 	if (@code_props) {
+		die "Edge decorations must be constants." if $type eq "Edge";
+	
 		return $text . $self->codeMaterial($matvar, $material, $common_string, \@code_props, $number);
 	} else {
 		return $text . Utils::constantMaterial($matvar, $material, "{".$common_string."}");
@@ -243,9 +245,17 @@ sub pointsToString {
 		$text .= $self->newMaterial("points", "Vertex");
 
 		$text .= "\n	<!-- POINTS -->\n";
-
-		foreach (@coords){
-			$text .= $self->newPoint($var, $_, $thickness);
+		
+		if (is_code($thickness)) {
+			my $i = 0;
+			foreach (@coords){
+				my $t = $thickness->($i++);
+				$text .= $self->newPoint($var, $_, $t) if $t;
+			} 
+		} else {
+			foreach (@coords){
+				$text .= $self->newPoint($var, $_, $thickness);
+			}
 		}
 		if ($labels !~	$Visual::hidden_re && $labels != "") {
 			my $i=-1;

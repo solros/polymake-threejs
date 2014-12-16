@@ -398,10 +398,8 @@ use Polymake::Struct (
 sub newFace {
 	my ($self, $var, $indices, $facet, $facet_color) = @_;
 	my $m_index = 0;
-	if (is_code($facet_color)) {
+	if (is_code($facet_color) || is_code($self->source->FacetTransparency)) {
 		$m_index = $facet;
-	} else {
-#		$color = Utils::rgbToHex(@{$facet_color});
 	}
 	return <<"%"
 	$var.faces.push(new THREE.Face3($indices, undefined, undefined, $m_index));

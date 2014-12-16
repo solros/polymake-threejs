@@ -1,0 +1,29 @@
+#  Copyright (c) 1997-2014
+#  Ewgenij Gawrilow, Michael Joswig (Technische Universitaet Berlin, Germany)
+#  http://www.polymake.org
+#
+#  This program is free software; you can redistribute it and/or modify it
+#  under the terms of the GNU General Public License as published by the
+#  Free Software Foundation; either version 2, or (at your option) any
+#  later version: http://www.gnu.org/licenses/gpl.txt.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#-------------------------------------------------------------------------------
+
+
+sub filter_threejs {
+   # remove comments and timestamp and take care of floating errors
+   sub {
+      s{^//.*}{};
+      s{<!--.*-->}{}g;
+      s{\.(\d{5})\d+}{\.$1}g;
+      s{(\d+)\.99999}{$1+1}e;
+      s{(\d+)\.00000}{$1};
+      s{-0([^.])}{0$1};
+		s{^polymake for .*$}{};
+		s{^(Mon|Tue|Wed|Thu|Fri|Sat|Sun) \w{3} .*$}{};
+   }
+}

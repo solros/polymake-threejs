@@ -1,0 +1,614 @@
+<!--
+polymake for silke
+Tue Dec 16 23:58:42 2014
+Schlegel diagram of  on facet 0
+-->
+
+
+<html>
+	<head>
+		<title>Schlegel diagram of  on facet 0</title>
+		<style>canvas { width: 100%; height: 100% }</style>
+	</head>
+
+<body>
+
+<div id="model"></div>
+
+<script src="js/three_for_polymake.min.js"></script>
+
+
+<script>
+	var container = document.getElementById( 'model' );
+	var renderer = Detector.webgl? new THREE.WebGLRenderer({antialias: true}): new THREE.CanvasRenderer({antialias: true});
+
+	renderer.setSize(window.innerWidth, window.innerHeight);
+	renderer.setClearColor(0xFFFFFF, 1);
+
+	container.appendChild(renderer.domElement);
+
+
+	var scene = new THREE.Scene();
+	var camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+					
+	camera.position.set(0, 0, 5);
+	camera.lookAt(0, 0, 0);
+	camera.up.set(0, 1, 0);
+
+	var controls = new THREE.TrackballControls(camera, container);
+	
+	var all_objects = [];
+	var centroids = [];
+	var obj = new THREE.Object3D();
+	
+	<!-- Edge style -->
+		var line_material = new THREE.LineBasicMaterial({ linewidth: 1, color: 0x0000FF, });
+
+	<!-- EDGES -->
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0.219447, 0.126698, -0.179178));
+	line.vertices.push(new THREE.Vector3(-0.219447, 0.126698, -0.179178));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0, 0.386762, -0.546963));
+	line.vertices.push(new THREE.Vector3(-0.219447, 0.126698, -0.179178));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0, 0.386762, -0.546963));
+	line.vertices.push(new THREE.Vector3(0.219447, 0.126698, -0.179178));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0, -0.253395, -0.179178));
+	line.vertices.push(new THREE.Vector3(-0.219447, 0.126698, -0.179178));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0, -0.253395, -0.179178));
+	line.vertices.push(new THREE.Vector3(0.219447, 0.126698, -0.179178));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(-0.334945, -0.193381, -0.546963));
+	line.vertices.push(new THREE.Vector3(-0.219447, 0.126698, -0.179178));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(-0.334945, -0.193381, -0.546963));
+	line.vertices.push(new THREE.Vector3(0, 0.386762, -0.546963));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(-0.334945, -0.193381, -0.546963));
+	line.vertices.push(new THREE.Vector3(0, -0.253395, -0.179178));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0, 0.253395, 0.179178));
+	line.vertices.push(new THREE.Vector3(-0.219447, 0.126698, -0.179178));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0, 0.253395, 0.179178));
+	line.vertices.push(new THREE.Vector3(0.219447, 0.126698, -0.179178));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0.334945, -0.193381, -0.546963));
+	line.vertices.push(new THREE.Vector3(0.219447, 0.126698, -0.179178));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0.334945, -0.193381, -0.546963));
+	line.vertices.push(new THREE.Vector3(0, 0.386762, -0.546963));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0.334945, -0.193381, -0.546963));
+	line.vertices.push(new THREE.Vector3(0, -0.253395, -0.179178));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0.334945, -0.193381, -0.546963));
+	line.vertices.push(new THREE.Vector3(-0.334945, -0.193381, -0.546963));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(-0.334945, 0.580142, 0));
+	line.vertices.push(new THREE.Vector3(-0.219447, 0.126698, -0.179178));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(-0.334945, 0.580142, 0));
+	line.vertices.push(new THREE.Vector3(0, 0.386762, -0.546963));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(-0.334945, 0.580142, 0));
+	line.vertices.push(new THREE.Vector3(0, 0.253395, 0.179178));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0.334945, 0.580142, 0));
+	line.vertices.push(new THREE.Vector3(0.219447, 0.126698, -0.179178));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0.334945, 0.580142, 0));
+	line.vertices.push(new THREE.Vector3(0, 0.386762, -0.546963));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0.334945, 0.580142, 0));
+	line.vertices.push(new THREE.Vector3(0, 0.253395, 0.179178));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0.334945, 0.580142, 0));
+	line.vertices.push(new THREE.Vector3(-0.334945, 0.580142, 0));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(-0.219447, -0.126698, 0.179178));
+	line.vertices.push(new THREE.Vector3(-0.219447, 0.126698, -0.179178));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(-0.219447, -0.126698, 0.179178));
+	line.vertices.push(new THREE.Vector3(0, -0.253395, -0.179178));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(-0.219447, -0.126698, 0.179178));
+	line.vertices.push(new THREE.Vector3(0, 0.253395, 0.179178));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0.219447, -0.126698, 0.179178));
+	line.vertices.push(new THREE.Vector3(0.219447, 0.126698, -0.179178));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0.219447, -0.126698, 0.179178));
+	line.vertices.push(new THREE.Vector3(0, -0.253395, -0.179178));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0.219447, -0.126698, 0.179178));
+	line.vertices.push(new THREE.Vector3(0, 0.253395, 0.179178));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0.219447, -0.126698, 0.179178));
+	line.vertices.push(new THREE.Vector3(-0.219447, -0.126698, 0.179178));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(-0.669891, 0, 0));
+	line.vertices.push(new THREE.Vector3(-0.219447, 0.126698, -0.179178));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(-0.669891, 0, 0));
+	line.vertices.push(new THREE.Vector3(-0.334945, -0.193381, -0.546963));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(-0.669891, 0, 0));
+	line.vertices.push(new THREE.Vector3(-0.334945, 0.580142, 0));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(-0.669891, 0, 0));
+	line.vertices.push(new THREE.Vector3(-0.219447, -0.126698, 0.179178));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(-0.707107, 0.408248, -0.57735));
+	line.vertices.push(new THREE.Vector3(0, 0.386762, -0.546963));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(-0.707107, 0.408248, -0.57735));
+	line.vertices.push(new THREE.Vector3(-0.334945, -0.193381, -0.546963));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(-0.707107, 0.408248, -0.57735));
+	line.vertices.push(new THREE.Vector3(-0.334945, 0.580142, 0));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(-0.707107, 0.408248, -0.57735));
+	line.vertices.push(new THREE.Vector3(-0.669891, 0, 0));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0.669891, 0, 0));
+	line.vertices.push(new THREE.Vector3(0.219447, 0.126698, -0.179178));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0.669891, 0, 0));
+	line.vertices.push(new THREE.Vector3(0.334945, -0.193381, -0.546963));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0.669891, 0, 0));
+	line.vertices.push(new THREE.Vector3(0.334945, 0.580142, 0));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0.669891, 0, 0));
+	line.vertices.push(new THREE.Vector3(0.219447, -0.126698, 0.179178));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0.707107, 0.408248, -0.57735));
+	line.vertices.push(new THREE.Vector3(0, 0.386762, -0.546963));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0.707107, 0.408248, -0.57735));
+	line.vertices.push(new THREE.Vector3(0.334945, -0.193381, -0.546963));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0.707107, 0.408248, -0.57735));
+	line.vertices.push(new THREE.Vector3(0.334945, 0.580142, 0));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0.707107, 0.408248, -0.57735));
+	line.vertices.push(new THREE.Vector3(-0.707107, 0.408248, -0.57735));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0.707107, 0.408248, -0.57735));
+	line.vertices.push(new THREE.Vector3(0.669891, 0, 0));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(-0.334945, -0.580142, 0));
+	line.vertices.push(new THREE.Vector3(0, -0.253395, -0.179178));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(-0.334945, -0.580142, 0));
+	line.vertices.push(new THREE.Vector3(-0.334945, -0.193381, -0.546963));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(-0.334945, -0.580142, 0));
+	line.vertices.push(new THREE.Vector3(-0.219447, -0.126698, 0.179178));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(-0.334945, -0.580142, 0));
+	line.vertices.push(new THREE.Vector3(-0.669891, 0, 0));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0.334945, -0.580142, 0));
+	line.vertices.push(new THREE.Vector3(0, -0.253395, -0.179178));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0.334945, -0.580142, 0));
+	line.vertices.push(new THREE.Vector3(0.334945, -0.193381, -0.546963));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0.334945, -0.580142, 0));
+	line.vertices.push(new THREE.Vector3(0.219447, -0.126698, 0.179178));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0.334945, -0.580142, 0));
+	line.vertices.push(new THREE.Vector3(0.669891, 0, 0));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0.334945, -0.580142, 0));
+	line.vertices.push(new THREE.Vector3(-0.334945, -0.580142, 0));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(-0.334945, 0.193381, 0.546963));
+	line.vertices.push(new THREE.Vector3(0, 0.253395, 0.179178));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(-0.334945, 0.193381, 0.546963));
+	line.vertices.push(new THREE.Vector3(-0.334945, 0.580142, 0));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(-0.334945, 0.193381, 0.546963));
+	line.vertices.push(new THREE.Vector3(-0.219447, -0.126698, 0.179178));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(-0.334945, 0.193381, 0.546963));
+	line.vertices.push(new THREE.Vector3(-0.669891, 0, 0));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0, -0.816497, -0.57735));
+	line.vertices.push(new THREE.Vector3(-0.334945, -0.193381, -0.546963));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0, -0.816497, -0.57735));
+	line.vertices.push(new THREE.Vector3(0.334945, -0.193381, -0.546963));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0, -0.816497, -0.57735));
+	line.vertices.push(new THREE.Vector3(-0.707107, 0.408248, -0.57735));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0, -0.816497, -0.57735));
+	line.vertices.push(new THREE.Vector3(0.707107, 0.408248, -0.57735));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0, -0.816497, -0.57735));
+	line.vertices.push(new THREE.Vector3(-0.334945, -0.580142, 0));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0, -0.816497, -0.57735));
+	line.vertices.push(new THREE.Vector3(0.334945, -0.580142, 0));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0.334945, 0.193381, 0.546963));
+	line.vertices.push(new THREE.Vector3(0, 0.253395, 0.179178));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0.334945, 0.193381, 0.546963));
+	line.vertices.push(new THREE.Vector3(0.334945, 0.580142, 0));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0.334945, 0.193381, 0.546963));
+	line.vertices.push(new THREE.Vector3(0.219447, -0.126698, 0.179178));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0.334945, 0.193381, 0.546963));
+	line.vertices.push(new THREE.Vector3(0.669891, 0, 0));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0.334945, 0.193381, 0.546963));
+	line.vertices.push(new THREE.Vector3(-0.334945, 0.193381, 0.546963));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0, 0.816497, 0.57735));
+	line.vertices.push(new THREE.Vector3(-0.334945, 0.580142, 0));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0, 0.816497, 0.57735));
+	line.vertices.push(new THREE.Vector3(0.334945, 0.580142, 0));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0, 0.816497, 0.57735));
+	line.vertices.push(new THREE.Vector3(-0.707107, 0.408248, -0.57735));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0, 0.816497, 0.57735));
+	line.vertices.push(new THREE.Vector3(0.707107, 0.408248, -0.57735));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0, 0.816497, 0.57735));
+	line.vertices.push(new THREE.Vector3(-0.334945, 0.193381, 0.546963));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0, 0.816497, 0.57735));
+	line.vertices.push(new THREE.Vector3(0.334945, 0.193381, 0.546963));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0, -0.386762, 0.546963));
+	line.vertices.push(new THREE.Vector3(-0.219447, -0.126698, 0.179178));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0, -0.386762, 0.546963));
+	line.vertices.push(new THREE.Vector3(0.219447, -0.126698, 0.179178));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0, -0.386762, 0.546963));
+	line.vertices.push(new THREE.Vector3(-0.334945, -0.580142, 0));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0, -0.386762, 0.546963));
+	line.vertices.push(new THREE.Vector3(0.334945, -0.580142, 0));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0, -0.386762, 0.546963));
+	line.vertices.push(new THREE.Vector3(-0.334945, 0.193381, 0.546963));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0, -0.386762, 0.546963));
+	line.vertices.push(new THREE.Vector3(0.334945, 0.193381, 0.546963));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(-0.707107, -0.408248, 0.57735));
+	line.vertices.push(new THREE.Vector3(-0.669891, 0, 0));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(-0.707107, -0.408248, 0.57735));
+	line.vertices.push(new THREE.Vector3(-0.707107, 0.408248, -0.57735));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(-0.707107, -0.408248, 0.57735));
+	line.vertices.push(new THREE.Vector3(-0.334945, -0.580142, 0));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(-0.707107, -0.408248, 0.57735));
+	line.vertices.push(new THREE.Vector3(-0.334945, 0.193381, 0.546963));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(-0.707107, -0.408248, 0.57735));
+	line.vertices.push(new THREE.Vector3(0, -0.816497, -0.57735));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(-0.707107, -0.408248, 0.57735));
+	line.vertices.push(new THREE.Vector3(0, 0.816497, 0.57735));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(-0.707107, -0.408248, 0.57735));
+	line.vertices.push(new THREE.Vector3(0, -0.386762, 0.546963));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0.707107, -0.408248, 0.57735));
+	line.vertices.push(new THREE.Vector3(0.669891, 0, 0));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0.707107, -0.408248, 0.57735));
+	line.vertices.push(new THREE.Vector3(0.707107, 0.408248, -0.57735));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0.707107, -0.408248, 0.57735));
+	line.vertices.push(new THREE.Vector3(0.334945, -0.580142, 0));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0.707107, -0.408248, 0.57735));
+	line.vertices.push(new THREE.Vector3(0, -0.816497, -0.57735));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0.707107, -0.408248, 0.57735));
+	line.vertices.push(new THREE.Vector3(0.334945, 0.193381, 0.546963));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0.707107, -0.408248, 0.57735));
+	line.vertices.push(new THREE.Vector3(0, 0.816497, 0.57735));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0.707107, -0.408248, 0.57735));
+	line.vertices.push(new THREE.Vector3(0, -0.386762, 0.546963));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0.707107, -0.408248, 0.57735));
+	line.vertices.push(new THREE.Vector3(-0.707107, -0.408248, 0.57735));
+	obj.add(new THREE.Line(line, line_material));
+	
+	scene.add(obj);
+	all_objects.push(obj);
+
+
+	var render = function () {
+
+		requestAnimationFrame(render);
+
+//		comment in for automatic explosion
+//		explode(updateFactor());
+
+		controls.update();
+		renderer.render(scene, camera);
+	};
+
+	render();
+
+	function computeCentroid(geom) {
+		centroid = new THREE.Vector3();
+		geom.vertices.forEach(function(v) {
+			centroid.add(v);			
+		});
+		centroid.divideScalar(geom.vertices.length);
+		return centroid;
+	}
+
+	function explode(factor) {
+		var obj, c;
+		for (var i = 0; i< all_objects.length; ++i) {
+			obj = all_objects[i];
+			c = centroids[i];
+	
+			obj.position.set(c.x*factor, c.y*factor, c.z*factor);
+		}	
+	}
+
+	var pos = 150* Math.PI;
+
+	function updateFactor() {
+		pos++;
+		return Math.sin(.01*pos)+1;
+	}
+
+	function makelabel(message, x, y, z, params) {
+		var spritey = textSprite( message, params );
+		spritey.position.set(x, y, z);
+		obj.add(spritey);
+	}
+
+	function textSprite(message, parameters)
+	{
+		if ( parameters === undefined ) parameters = {};
+
+		var fontface = "Helvetica";
+
+		var fontsize = parameters.hasOwnProperty("fontsize") ? 
+			parameters["fontsize"] : 18;
+		fontsize = fontsize*10;
+
+		var canvas = document.createElement('canvas');
+		var size = 1000;
+		canvas.width = size;
+		canvas.height = size;
+		var context = canvas.getContext('2d');
+		context.font = fontsize + "px " + fontface;
+
+		// text color
+		context.fillStyle = "rgba(0, 0, 0, 1.0)";
+
+		context.fillText(message, size/2, size/2);
+
+		// canvas contents will be used for a texture
+		var texture = new THREE.Texture(canvas);
+		texture.needsUpdate = true;
+
+		var spriteMaterial = new THREE.SpriteMaterial(
+			{map: texture, useScreenCoordinates: false});
+		var sprite = new THREE.Sprite(spriteMaterial);
+		return sprite;
+	}
+
+
+
+</script>
+
+</body>
+</html>

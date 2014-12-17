@@ -1,0 +1,589 @@
+<!--
+polymake for silke
+Wed Dec 17 16:21:11 2014
+GRAPH of 
+-->
+
+
+<html>
+	<head>
+		<title>GRAPH of </title>
+		<style>canvas { width: 100%; height: 100% }</style>
+	</head>
+
+<body>
+
+<div id="model"></div>
+
+<script src="js/three_for_polymake.min.js"></script>
+
+
+<script>
+	var container = document.getElementById( 'model' );
+	var renderer = Detector.webgl? new THREE.WebGLRenderer({antialias: true}): new THREE.CanvasRenderer({antialias: true});
+
+	renderer.setSize(window.innerWidth, window.innerHeight);
+	renderer.setClearColor(0xFFFFFF, 1);
+
+	container.appendChild(renderer.domElement);
+
+
+	var scene = new THREE.Scene();
+	var camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+					
+	camera.position.set(0, 0, 5);
+	camera.lookAt(0, 0, 0);
+	camera.up.set(0, 1, 0);
+
+	var controls = new THREE.TrackballControls(camera, container);
+	
+	var all_objects = [];
+	var centroids = [];
+	var obj = new THREE.Object3D();
+	
+	<!-- Vertex style -->
+	var points_material = new THREE.MeshBasicMaterial ( {color: 0x000000, } );
+	points_material.side = THREE.DoubleSide;
+	
+
+	<!-- POINTS -->
+	var sphere = new THREE.Mesh(new THREE.SphereGeometry(0.02), points_material);
+	sphere.position.set(-1.88567, 0.896485, 0.745262);
+	obj.add(sphere);
+	var sphere = new THREE.Mesh(new THREE.SphereGeometry(0.02), points_material);
+	sphere.position.set(-1.15703, -1.19801, 1.46303);
+	obj.add(sphere);
+	var sphere = new THREE.Mesh(new THREE.SphereGeometry(0.02), points_material);
+	sphere.position.set(0.00551232, 0.720566, 2.09652);
+	obj.add(sphere);
+	var sphere = new THREE.Mesh(new THREE.SphereGeometry(0.02), points_material);
+	sphere.position.set(-1.88599, -0.906899, -0.731727);
+	obj.add(sphere);
+	var sphere = new THREE.Mesh(new THREE.SphereGeometry(0.02), points_material);
+	sphere.position.set(-0.00499579, 2.1974, 0.293311);
+	obj.add(sphere);
+	var sphere = new THREE.Mesh(new THREE.SphereGeometry(0.02), points_material);
+	sphere.position.set(-1.17403, 1.19158, -1.45467);
+	obj.add(sphere);
+	var sphere = new THREE.Mesh(new THREE.SphereGeometry(0.02), points_material);
+	sphere.position.set(1.17403, -1.19158, 1.45467);
+	obj.add(sphere);
+	var sphere = new THREE.Mesh(new THREE.SphereGeometry(0.02), points_material);
+	sphere.position.set(0.00499577, -2.1974, -0.293311);
+	obj.add(sphere);
+	var sphere = new THREE.Mesh(new THREE.SphereGeometry(0.02), points_material);
+	sphere.position.set(1.88599, 0.906899, 0.731727);
+	obj.add(sphere);
+	var sphere = new THREE.Mesh(new THREE.SphereGeometry(0.02), points_material);
+	sphere.position.set(-0.0055123, -0.720566, -2.09652);
+	obj.add(sphere);
+	var sphere = new THREE.Mesh(new THREE.SphereGeometry(0.02), points_material);
+	sphere.position.set(1.15703, 1.19801, -1.46303);
+	obj.add(sphere);
+	var sphere = new THREE.Mesh(new THREE.SphereGeometry(0.02), points_material);
+	sphere.position.set(1.88567, -0.896485, -0.745262);
+	obj.add(sphere);
+	makelabel("0", -1.88567, 0.896485, 0.745262);
+	makelabel("1", -1.15703, -1.19801, 1.46303);
+	makelabel("2", 0.00551232, 0.720566, 2.09652);
+	makelabel("3", -1.88599, -0.906899, -0.731727);
+	makelabel("4", -0.00499579, 2.1974, 0.293311);
+	makelabel("5", -1.17403, 1.19158, -1.45467);
+	makelabel("6", 1.17403, -1.19158, 1.45467);
+	makelabel("7", 0.00499577, -2.1974, -0.293311);
+	makelabel("8", 1.88599, 0.906899, 0.731727);
+	makelabel("9", -0.0055123, -0.720566, -2.09652);
+	makelabel("10", 1.15703, 1.19801, -1.46303);
+	makelabel("11", 1.88567, -0.896485, -0.745262);
+
+	<!-- Edge style -->
+	var line_material = new THREE.LineBasicMaterial ( {color: 0xFF0000, linewidth: 1, } );
+	line_material.side = THREE.DoubleSide;
+	
+
+	<!-- EDGES -->
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(-1.15703, -1.19801, 1.46303));
+	line.vertices.push(new THREE.Vector3(-1.88567, 0.896485, 0.745262));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0.00551232, 0.720566, 2.09652));
+	line.vertices.push(new THREE.Vector3(-1.88567, 0.896485, 0.745262));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0.00551232, 0.720566, 2.09652));
+	line.vertices.push(new THREE.Vector3(-1.15703, -1.19801, 1.46303));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(-1.88599, -0.906899, -0.731727));
+	line.vertices.push(new THREE.Vector3(-1.88567, 0.896485, 0.745262));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(-1.88599, -0.906899, -0.731727));
+	line.vertices.push(new THREE.Vector3(-1.15703, -1.19801, 1.46303));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(-0.00499579, 2.1974, 0.293311));
+	line.vertices.push(new THREE.Vector3(-1.88567, 0.896485, 0.745262));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(-0.00499579, 2.1974, 0.293311));
+	line.vertices.push(new THREE.Vector3(0.00551232, 0.720566, 2.09652));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(-1.17403, 1.19158, -1.45467));
+	line.vertices.push(new THREE.Vector3(-1.88567, 0.896485, 0.745262));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(-1.17403, 1.19158, -1.45467));
+	line.vertices.push(new THREE.Vector3(-1.88599, -0.906899, -0.731727));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(-1.17403, 1.19158, -1.45467));
+	line.vertices.push(new THREE.Vector3(-0.00499579, 2.1974, 0.293311));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(1.17403, -1.19158, 1.45467));
+	line.vertices.push(new THREE.Vector3(-1.15703, -1.19801, 1.46303));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(1.17403, -1.19158, 1.45467));
+	line.vertices.push(new THREE.Vector3(0.00551232, 0.720566, 2.09652));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0.00499577, -2.1974, -0.293311));
+	line.vertices.push(new THREE.Vector3(-1.15703, -1.19801, 1.46303));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0.00499577, -2.1974, -0.293311));
+	line.vertices.push(new THREE.Vector3(-1.88599, -0.906899, -0.731727));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0.00499577, -2.1974, -0.293311));
+	line.vertices.push(new THREE.Vector3(1.17403, -1.19158, 1.45467));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(1.88599, 0.906899, 0.731727));
+	line.vertices.push(new THREE.Vector3(0.00551232, 0.720566, 2.09652));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(1.88599, 0.906899, 0.731727));
+	line.vertices.push(new THREE.Vector3(-0.00499579, 2.1974, 0.293311));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(1.88599, 0.906899, 0.731727));
+	line.vertices.push(new THREE.Vector3(1.17403, -1.19158, 1.45467));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(-0.0055123, -0.720566, -2.09652));
+	line.vertices.push(new THREE.Vector3(-1.88599, -0.906899, -0.731727));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(-0.0055123, -0.720566, -2.09652));
+	line.vertices.push(new THREE.Vector3(-1.17403, 1.19158, -1.45467));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(-0.0055123, -0.720566, -2.09652));
+	line.vertices.push(new THREE.Vector3(0.00499577, -2.1974, -0.293311));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(1.15703, 1.19801, -1.46303));
+	line.vertices.push(new THREE.Vector3(-0.00499579, 2.1974, 0.293311));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(1.15703, 1.19801, -1.46303));
+	line.vertices.push(new THREE.Vector3(-1.17403, 1.19158, -1.45467));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(1.15703, 1.19801, -1.46303));
+	line.vertices.push(new THREE.Vector3(1.88599, 0.906899, 0.731727));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(1.15703, 1.19801, -1.46303));
+	line.vertices.push(new THREE.Vector3(-0.0055123, -0.720566, -2.09652));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(1.88567, -0.896485, -0.745262));
+	line.vertices.push(new THREE.Vector3(1.17403, -1.19158, 1.45467));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(1.88567, -0.896485, -0.745262));
+	line.vertices.push(new THREE.Vector3(0.00499577, -2.1974, -0.293311));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(1.88567, -0.896485, -0.745262));
+	line.vertices.push(new THREE.Vector3(1.88599, 0.906899, 0.731727));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(1.88567, -0.896485, -0.745262));
+	line.vertices.push(new THREE.Vector3(-0.0055123, -0.720566, -2.09652));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(1.88567, -0.896485, -0.745262));
+	line.vertices.push(new THREE.Vector3(1.15703, 1.19801, -1.46303));
+	obj.add(new THREE.Line(line, line_material));
+	
+	scene.add(obj);
+	all_objects.push(obj);
+
+	var obj = new THREE.Object3D();
+	
+	<!-- Vertex style -->
+	var points_material = new THREE.MeshBasicMaterial ( {color: 0xFFFFFF, } );
+	points_material.side = THREE.DoubleSide;
+	
+
+	<!-- POINTS -->
+	var sphere = new THREE.Mesh(new THREE.SphereGeometry(0.02), points_material);
+	sphere.position.set(-2.01795, 4.16997, -0.668944);
+	obj.add(sphere);
+	var sphere = new THREE.Mesh(new THREE.SphereGeometry(0.02), points_material);
+	sphere.position.set(2.64061, 2.56548, -2.89027);
+	obj.add(sphere);
+	var sphere = new THREE.Mesh(new THREE.SphereGeometry(0.02), points_material);
+	sphere.position.set(-3.08168, 2.77318, 2.17265);
+	obj.add(sphere);
+	var sphere = new THREE.Mesh(new THREE.SphereGeometry(0.02), points_material);
+	sphere.position.set(-0.416863, 2.20811, 4.10561);
+	obj.add(sphere);
+	var sphere = new THREE.Mesh(new THREE.SphereGeometry(0.02), points_material);
+	sphere.position.set(-4.45603, -0.177084, 1.42152);
+	obj.add(sphere);
+	var sphere = new THREE.Mesh(new THREE.SphereGeometry(0.02), points_material);
+	sphere.position.set(2.29378, 3.25567, 2.45868);
+	obj.add(sphere);
+	var sphere = new THREE.Mesh(new THREE.SphereGeometry(0.02), points_material);
+	sphere.position.set(1.30427, 4.46818, -0.492168);
+	obj.add(sphere);
+	var sphere = new THREE.Mesh(new THREE.SphereGeometry(0.02), points_material);
+	sphere.position.set(-2.73487, 2.08294, -3.1763);
+	obj.add(sphere);
+	var sphere = new THREE.Mesh(new THREE.SphereGeometry(0.02), points_material);
+	sphere.position.set(-0.144263, -1.09133, 4.54913);
+	obj.add(sphere);
+	var sphere = new THREE.Mesh(new THREE.SphereGeometry(0.02), points_material);
+	sphere.position.set(-4.24167, -0.603656, -1.88433);
+	obj.add(sphere);
+	var sphere = new THREE.Mesh(new THREE.SphereGeometry(0.02), points_material);
+	sphere.position.set(4.24167, 0.603656, 1.88433);
+	obj.add(sphere);
+	var sphere = new THREE.Mesh(new THREE.SphereGeometry(0.02), points_material);
+	sphere.position.set(-2.64061, -2.56548, 2.89027);
+	obj.add(sphere);
+	var sphere = new THREE.Mesh(new THREE.SphereGeometry(0.02), points_material);
+	sphere.position.set(-2.29378, -3.25567, -2.45868);
+	obj.add(sphere);
+	var sphere = new THREE.Mesh(new THREE.SphereGeometry(0.02), points_material);
+	sphere.position.set(2.73487, -2.08294, 3.1763);
+	obj.add(sphere);
+	var sphere = new THREE.Mesh(new THREE.SphereGeometry(0.02), points_material);
+	sphere.position.set(0.144263, 1.09133, -4.54913);
+	obj.add(sphere);
+	var sphere = new THREE.Mesh(new THREE.SphereGeometry(0.02), points_material);
+	sphere.position.set(4.45603, 0.177084, -1.42152);
+	obj.add(sphere);
+	var sphere = new THREE.Mesh(new THREE.SphereGeometry(0.02), points_material);
+	sphere.position.set(-1.30427, -4.46818, 0.492168);
+	obj.add(sphere);
+	var sphere = new THREE.Mesh(new THREE.SphereGeometry(0.02), points_material);
+	sphere.position.set(2.01795, -4.16997, 0.668944);
+	obj.add(sphere);
+	var sphere = new THREE.Mesh(new THREE.SphereGeometry(0.02), points_material);
+	sphere.position.set(0.416863, -2.20811, -4.10561);
+	obj.add(sphere);
+	var sphere = new THREE.Mesh(new THREE.SphereGeometry(0.02), points_material);
+	sphere.position.set(3.08168, -2.77318, -2.17265);
+	obj.add(sphere);
+	makelabel("0", -2.01795, 4.16997, -0.668944);
+	makelabel("1", 2.64061, 2.56548, -2.89027);
+	makelabel("2", -3.08168, 2.77318, 2.17265);
+	makelabel("3", -0.416863, 2.20811, 4.10561);
+	makelabel("4", -4.45603, -0.177084, 1.42152);
+	makelabel("5", 2.29378, 3.25567, 2.45868);
+	makelabel("6", 1.30427, 4.46818, -0.492168);
+	makelabel("7", -2.73487, 2.08294, -3.1763);
+	makelabel("8", -0.144263, -1.09133, 4.54913);
+	makelabel("9", -4.24167, -0.603656, -1.88433);
+	makelabel("10", 4.24167, 0.603656, 1.88433);
+	makelabel("11", -2.64061, -2.56548, 2.89027);
+	makelabel("12", -2.29378, -3.25567, -2.45868);
+	makelabel("13", 2.73487, -2.08294, 3.1763);
+	makelabel("14", 0.144263, 1.09133, -4.54913);
+	makelabel("15", 4.45603, 0.177084, -1.42152);
+	makelabel("16", -1.30427, -4.46818, 0.492168);
+	makelabel("17", 2.01795, -4.16997, 0.668944);
+	makelabel("18", 0.416863, -2.20811, -4.10561);
+	makelabel("19", 3.08168, -2.77318, -2.17265);
+
+	<!-- Edge style -->
+	var line_material = new THREE.LineBasicMaterial ( {color: 0x0000FF, linewidth: 1, } );
+	line_material.side = THREE.DoubleSide;
+	
+
+	<!-- EDGES -->
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(-3.08168, 2.77318, 2.17265));
+	line.vertices.push(new THREE.Vector3(-2.01795, 4.16997, -0.668944));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(-0.416863, 2.20811, 4.10561));
+	line.vertices.push(new THREE.Vector3(-3.08168, 2.77318, 2.17265));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(-4.45603, -0.177084, 1.42152));
+	line.vertices.push(new THREE.Vector3(-3.08168, 2.77318, 2.17265));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(2.29378, 3.25567, 2.45868));
+	line.vertices.push(new THREE.Vector3(-0.416863, 2.20811, 4.10561));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(1.30427, 4.46818, -0.492168));
+	line.vertices.push(new THREE.Vector3(-2.01795, 4.16997, -0.668944));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(1.30427, 4.46818, -0.492168));
+	line.vertices.push(new THREE.Vector3(2.64061, 2.56548, -2.89027));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(1.30427, 4.46818, -0.492168));
+	line.vertices.push(new THREE.Vector3(2.29378, 3.25567, 2.45868));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(-2.73487, 2.08294, -3.1763));
+	line.vertices.push(new THREE.Vector3(-2.01795, 4.16997, -0.668944));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(-0.144263, -1.09133, 4.54913));
+	line.vertices.push(new THREE.Vector3(-0.416863, 2.20811, 4.10561));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(-4.24167, -0.603656, -1.88433));
+	line.vertices.push(new THREE.Vector3(-4.45603, -0.177084, 1.42152));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(-4.24167, -0.603656, -1.88433));
+	line.vertices.push(new THREE.Vector3(-2.73487, 2.08294, -3.1763));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(4.24167, 0.603656, 1.88433));
+	line.vertices.push(new THREE.Vector3(2.29378, 3.25567, 2.45868));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(-2.64061, -2.56548, 2.89027));
+	line.vertices.push(new THREE.Vector3(-4.45603, -0.177084, 1.42152));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(-2.64061, -2.56548, 2.89027));
+	line.vertices.push(new THREE.Vector3(-0.144263, -1.09133, 4.54913));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(-2.29378, -3.25567, -2.45868));
+	line.vertices.push(new THREE.Vector3(-4.24167, -0.603656, -1.88433));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(2.73487, -2.08294, 3.1763));
+	line.vertices.push(new THREE.Vector3(-0.144263, -1.09133, 4.54913));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(2.73487, -2.08294, 3.1763));
+	line.vertices.push(new THREE.Vector3(4.24167, 0.603656, 1.88433));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0.144263, 1.09133, -4.54913));
+	line.vertices.push(new THREE.Vector3(2.64061, 2.56548, -2.89027));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0.144263, 1.09133, -4.54913));
+	line.vertices.push(new THREE.Vector3(-2.73487, 2.08294, -3.1763));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(4.45603, 0.177084, -1.42152));
+	line.vertices.push(new THREE.Vector3(2.64061, 2.56548, -2.89027));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(4.45603, 0.177084, -1.42152));
+	line.vertices.push(new THREE.Vector3(4.24167, 0.603656, 1.88433));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(-1.30427, -4.46818, 0.492168));
+	line.vertices.push(new THREE.Vector3(-2.64061, -2.56548, 2.89027));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(-1.30427, -4.46818, 0.492168));
+	line.vertices.push(new THREE.Vector3(-2.29378, -3.25567, -2.45868));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(2.01795, -4.16997, 0.668944));
+	line.vertices.push(new THREE.Vector3(2.73487, -2.08294, 3.1763));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(2.01795, -4.16997, 0.668944));
+	line.vertices.push(new THREE.Vector3(-1.30427, -4.46818, 0.492168));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0.416863, -2.20811, -4.10561));
+	line.vertices.push(new THREE.Vector3(-2.29378, -3.25567, -2.45868));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(0.416863, -2.20811, -4.10561));
+	line.vertices.push(new THREE.Vector3(0.144263, 1.09133, -4.54913));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(3.08168, -2.77318, -2.17265));
+	line.vertices.push(new THREE.Vector3(4.45603, 0.177084, -1.42152));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(3.08168, -2.77318, -2.17265));
+	line.vertices.push(new THREE.Vector3(2.01795, -4.16997, 0.668944));
+	obj.add(new THREE.Line(line, line_material));
+	
+	var line = new THREE.Geometry();
+	line.vertices.push(new THREE.Vector3(3.08168, -2.77318, -2.17265));
+	line.vertices.push(new THREE.Vector3(0.416863, -2.20811, -4.10561));
+	obj.add(new THREE.Line(line, line_material));
+	
+	scene.add(obj);
+	all_objects.push(obj);
+
+
+	var render = function () {
+
+		requestAnimationFrame(render);
+
+//		comment in for automatic explosion
+//		explode(updateFactor());
+
+		controls.update();
+		renderer.render(scene, camera);
+	};
+
+	render();
+
+	function computeCentroid(geom) {
+		centroid = new THREE.Vector3();
+		geom.vertices.forEach(function(v) {
+			centroid.add(v);			
+		});
+		centroid.divideScalar(geom.vertices.length);
+		return centroid;
+	}
+
+	function explode(factor) {
+		var obj, c;
+		for (var i = 0; i< all_objects.length; ++i) {
+			obj = all_objects[i];
+			c = centroids[i];
+	
+			obj.position.set(c.x*factor, c.y*factor, c.z*factor);
+		}	
+	}
+
+	var pos = 150* Math.PI;
+
+	function updateFactor() {
+		pos++;
+		return Math.sin(.01*pos)+1;
+	}
+
+	function makelabel(message, x, y, z, params) {
+		var spritey = textSprite( message, params );
+		spritey.position.set(x, y, z);
+		obj.add(spritey);
+	}
+
+	function textSprite(message, parameters)
+	{
+		if ( parameters === undefined ) parameters = {};
+
+		var fontface = "Helvetica";
+
+		var fontsize = parameters.hasOwnProperty("fontsize") ? 
+			parameters["fontsize"] : 18;
+		fontsize = fontsize*10;
+
+		var canvas = document.createElement('canvas');
+		var size = 1000;
+		canvas.width = size;
+		canvas.height = size;
+		var context = canvas.getContext('2d');
+		context.font = fontsize + "px " + fontface;
+
+		// text color
+		context.fillStyle = "rgba(0, 0, 0, 1.0)";
+
+		context.fillText(message, size/2, size/2);
+
+		// canvas contents will be used for a texture
+		var texture = new THREE.Texture(canvas);
+		texture.needsUpdate = true;
+
+		var spriteMaterial = new THREE.SpriteMaterial(
+			{map: texture, useScreenCoordinates: false});
+		var sprite = new THREE.Sprite(spriteMaterial);
+		return sprite;
+	}
+
+
+
+</script>
+
+</body>
+</html>

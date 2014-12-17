@@ -40,4 +40,9 @@ threejs($p5->VISUAL(EdgeColor=>'blue', VertexStyle=>'hidden'), File=>diff_with("
 
 	and
 
-threejs($p1->VISUAL(FacetTransparency=>sub{(shift)/6}, VertexThickness=>sub{(shift)}, VertexLabels=>'hidden'), File=>diff_with("6three", filter_threejs()));
+threejs($p1->VISUAL(FacetTransparency=>sub{(shift)/6}, VertexThickness=>sub{(shift)}, VertexLabels=>'hidden'), File=>diff_with("6three", filter_threejs()))
+
+	and
+
+threejs($p1->VISUAL(FacetStyle=>'hidden',EdgeStyle=>'hidden', VertexThickness=>sub{(shift)}), File=>diff_with("7three", filter_threejs()));
+
